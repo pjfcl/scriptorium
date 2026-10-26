@@ -90,7 +90,7 @@
             margin: 0;
         }
 
-        /* Barra de Alerta / Boas-vindas (Cuidado!) */
+        /* Barra de Alerta / Boas-vindas */
         .warning-box {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -110,7 +110,7 @@
             margin-bottom: 8px;
         }
 
-        /* Menu Lateral da Wiki (Sidebar A-Z e Estrutura) */
+        /* Menu Lateral da Wiki */
         .wiki-sidebar {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -220,7 +220,7 @@
             background-color: var(--accent-color);
         }
 
-        /* Bloco Destacado: Investigação Gastronómica */
+        /* Bloco Destacado: Investigação Gastronómica (Caldo de Sabores) */
         .gastro-callout {
             background-color: var(--bg-color);
             border: 1px solid var(--border-color);
@@ -232,10 +232,24 @@
 
         .gastro-callout p {
             font-family: var(--font-serif);
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             font-style: italic;
             color: var(--text-color);
-            margin: 0;
+            margin: 8px 0 12px 0;
+        }
+
+        .gastro-link {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .gastro-link:hover {
+            text-decoration: underline;
         }
 
         /* Rodapé Institucional */
@@ -324,12 +338,13 @@
 
                 </div>
 
-                <!-- Bloco de Aforismo Gastronómico -->
+                <!-- Bloco de Investigação Gastronómica / Caldo de Sabores -->
                 <div class="gastro-callout">
                     <span class="font-mono w3-tiny w3-uppercase" style="color: var(--accent-color); letter-spacing: 1px;">Investigação Gastronómica</span>
-                    <p style="margin-top: 8px;">
+                    <p>
                         "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
                     </p>
+                    <a href="https://gastronomia.paulolopes.org" class="gastro-link">Caldo de Sabores &rarr;</a>
                 </div>
             </aside>
 
@@ -389,16 +404,17 @@
 
         </div>
 
-        <!-- Rodapé Institucional -->
+        <!-- Rodapé Institucional com Ligação à Gastronomia / Caldo de Sabores -->
         <footer class="site-footer">
             <p style="font-style: italic; font-family: var(--font-serif); margin-bottom: 0.8rem; color: var(--muted-color);">
                 "Enquanto a mão corta, a mente destila."
             </p>
             
             <div class="footer-links">
-                <a href="https://paulolopes.org">Início (paulolopes.org)</a> &mdash; 
+                <a href="https://paulolopes.org">Início</a> &mdash; 
                 <a href="https://paulolopes.org/artefactos/">Artefactos</a> &mdash; 
-                <a href="https://costa.paulolopes.org">Casa da Costa</a> &mdash;
+                <a href="https://costa.paulolopes.org">Casa da Costa</a> &mdash; 
+                <a href="https://gastronomia.paulolopes.org">Gastronomia (Caldo de Sabores)</a> &mdash; 
                 <a href="https://glossario.paulolopes.org">Glossário</a>
             </div>
             
