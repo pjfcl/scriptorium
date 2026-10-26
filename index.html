@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-    <title>Salitre — Glossário & Wiki do Artífice | paulolopes.org</title>
+    <title>Scriptorium Digital — Reflexões, Ficção & Humanidades | Paulo Lopes</title>
 
     <!-- Framework W3.CSS -->
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -16,7 +16,7 @@
             --bg-color: #fcfbf9;          /* Papel de arquivo / Marfim */
             --text-color: #0f1e2d;        /* Azul-marinho profundo */
             --accent-color: #8c2d19;      /* Vermelho óxido / Sanguínea */
-            --muted-color: #5c6b73;       /* Azul pedra / Salitre */
+            --muted-color: #5c6b73;       /* Azul pedra / Grafite */
             --border-color: #d8d3cd;      /* Linha de divisão subtil */
             --card-bg: #ffffff;           /* Branco puro para leitura */
             
@@ -63,10 +63,10 @@
             color: var(--accent-color);
         }
 
-        /* Cabeçalho da Wiki */
+        /* Cabeçalho do Scriptorium */
         header.wiki-header {
             border-bottom: 2px solid var(--text-color);
-            padding-bottom: 15px;
+            padding-bottom: 20px;
             margin-bottom: 30px;
         }
 
@@ -74,72 +74,67 @@
             font-family: var(--font-sans);
             font-size: 2.2rem;
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
             margin: 0 0 6px 0;
-        }
-
-        /* Ligações Hipertextuais do Glossário (Wiki-Links) */
-        a.wiki-link {
             color: var(--text-color);
-            text-decoration: none;
-            border-bottom: 1px dashed var(--accent-color);
-            transition: color 0.2s ease, border-style 0.2s ease;
         }
 
-        a.wiki-link:hover {
+        .header-sub {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            letter-spacing: 1.5px;
             color: var(--accent-color);
-            border-bottom-style: solid;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 0;
         }
 
-        /* Menu Lateral da Wiki (Sidebar A-Z) */
+        /* Barra de Alerta / Boas-vindas (Cuidado!) */
+        .warning-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color);
+            padding: 22px 24px;
+            margin-bottom: 35px;
+        }
+
+        .warning-box h2 {
+            font-family: var(--font-sans);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        /* Menu Lateral da Wiki (Sidebar A-Z e Estrutura) */
         .wiki-sidebar {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 20px;
+            padding: 22px;
             margin-bottom: 30px;
         }
 
         .wiki-sidebar h3 {
             font-family: var(--font-sans);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             color: var(--accent-color);
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 6px;
-        }
-
-        .wiki-alphabet {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-        }
-
-        .wiki-alphabet a {
-            color: var(--text-color);
-            text-decoration: none;
-            padding: 2px 6px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-        }
-
-        .wiki-alphabet a:hover {
-            background: var(--accent-color);
-            color: #ffffff;
-            border-color: var(--accent-color);
         }
 
         .wiki-sidebar-list {
             list-style: none;
             padding: 0;
-            margin: 0;
+            margin: 0 0 20px 0;
             font-family: var(--font-sans);
             font-size: 0.92rem;
         }
@@ -151,53 +146,96 @@
         .wiki-sidebar-list a {
             color: var(--text-color);
             text-decoration: none;
+            transition: color 0.2s ease;
         }
 
         .wiki-sidebar-list a:hover {
             color: var(--accent-color);
         }
 
-        /* Infobox de Ficha de Arquivo */
-        .wiki-infobox {
+        /* Cartões de Entradas Recentes */
+        .entry-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-top: 4px solid var(--accent-color);
-            padding: 18px;
+            border-left: 3px solid var(--text-color);
+            padding: 20px 22px;
             margin-bottom: 20px;
-            font-size: 0.9rem;
+            transition: border-color 0.2s ease, transform 0.2s ease;
         }
 
-        .wiki-infobox-title {
+        .entry-card:hover {
+            border-left-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .entry-meta {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .entry-card h3 {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            color: var(--text-color);
+        }
+
+        .entry-card p {
+            font-size: 0.98rem;
+            color: var(--text-color);
+            margin: 0 0 12px 0;
+        }
+
+        .entry-citation {
             font-family: var(--font-sans);
-            font-size: 1rem;
+            font-size: 0.82rem;
+            color: var(--muted-color);
+            border-left: 2px solid var(--border-color);
+            padding-left: 10px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .entry-link {
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 0;
-            margin-bottom: 12px;
+            color: #ffffff;
+            background-color: var(--text-color);
+            padding: 6px 12px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s ease;
+        }
+
+        .entry-link:hover {
+            background-color: var(--accent-color);
+        }
+
+        /* Bloco Destacado: Investigação Gastronómica */
+        .gastro-callout {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-top: 3px solid var(--accent-color);
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .gastro-callout p {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-style: italic;
             color: var(--text-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
-        }
-
-        .wiki-infobox-row {
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .wiki-infobox-label {
-            font-family: var(--font-mono);
-            font-size: 0.78rem;
-            color: var(--muted-color);
-            text-transform: uppercase;
-        }
-
-        .wiki-infobox-value {
-            font-family: var(--font-sans);
-            font-weight: 600;
-            color: var(--text-color);
-            text-align: right;
+            margin: 0;
         }
 
         /* Rodapé Institucional */
@@ -233,97 +271,118 @@
 </head>
 <body class="w3-padding-large">
 
-    <main class="w3-content w3-padding-24" style="max-width: 1050px;">
+    <main class="w3-content w3-padding-24" style="max-width: 1100px;">
         
         <!-- Breadcrumb Superior -->
         <nav class="breadcrumb">
-            <a href="https://paulolopes.org">paulolopes.org</a> / <a href="./index.html">glossário</a> / <span>salitre</span>
+            <a href="https://paulolopes.org">paulolopes.org</a> / <span>scriptorium digital</span>
         </nav>
 
-        <!-- Cabeçalho -->
+        <!-- Cabeçalho Principal -->
         <header class="wiki-header">
-            <h1>Portal & Wiki do Artífice</h1>
-            <p class="font-sans w3-small w3-uppercase" style="letter-spacing: 1.5px; color: var(--accent-color); font-weight: 600; margin: 0;">
-                Arquivo de Conceitos, Matéria & Metodologia
-            </p>
+            <h1>Scriptorium Digital</h1>
+            <p class="header-sub">Reflexões, Ficção & Outras Narrativas</p>
         </header>
+
+        <!-- Mensagem de Boas-vindas / Enquadramento do Espaço -->
+        <section class="warning-box">
+            <h2>Cuidado! Oficina de Resistência em Ação</h2>
+            <p style="margin: 0;" align="justify">
+                Não estás a entrar num museu asséptico, mas sim numa oficina de resistência. Este é um jardim digital cultivado para consulta e destilação de ideias, fora do fluxo das redes sociais e da interacção imediata. Isento dos estímulos acelerados da sociedade contemporânea, este portal reúne apontamentos, teoria e outros escritos que exploram a cultura, o pensamento e a expressão humana. Sê bem-vindo!
+            </p>
+        </section>
 
         <!-- Layout em Duas Colunas (Grelha W3.CSS) -->
         <div class="w3-row-padding" style="margin-left: -16px; margin-right: -16px;">
             
-            <!-- COLUNA ESQUERDA: ÍNDICE E ÍNDICE A-Z (Skins e Categorias) -->
+            <!-- COLUNA ESQUERDA: NAVEGAÇÃO & MAPA DO SCRIPTORIUM -->
             <aside class="w3-col m4 l3">
                 <div class="wiki-sidebar">
-                    <h3>Índice Alfabético</h3>
-                    <div class="wiki-alphabet">
-                        <a href="#A">A</a> <a href="#C">C</a> <a href="#E">E</a> 
-                        <a href="#G">G</a> <a href="#L">L</a> <a href="#P">P</a> 
-                        <a href="#S">S</a> <a href="#T">T</a>
-                    </div>
-
-                    <h3>Conceitos em Destaque</h3>
+                    
+                    <h3>1. Corpus (Arquivo)</h3>
                     <ul class="wiki-sidebar-list">
-                        <li><a href="alambique.html">Alambique Cultural</a></li>
-                        <li><a href="artifice.html">Artífice</a></li>
-                        <li><a href="cal.html">Cal Hidráulica</a></li>
-                        <li><a href="permacultura.html">Permacultura de Litoral</a></li>
-                        <li><strong>Salitre</strong></li>
-                        <li><a href="slow-web.html">Slow Web</a></li>
+                        <li><a href="corpus/sementes/index.html"><strong>As Sementes</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Notas rápidas & citações</span></a></li>
+                        <li><a href="corpus/colheitas/index.html"><strong>A Colheita</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ensaios & leituras críticas</span></a></li>
+                        <li><a href="corpus/tinturas/index.html"><strong>As Tinturas</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ficção & narrativas</span></a></li>
                     </ul>
+
+                    <h3>2. A Escola</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="escola/index.html"><strong>Cadernos da UAb</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Investigação & Humanidades</span></a></li>
+                    </ul>
+
+                    <h3>3. A Oficina</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="oficina/index.html"><strong>Humanidades Digitais</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Código, Scheme & Zettelkasten</span></a></li>
+                    </ul>
+
+                    <h3>4. Sobre</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="sobre/index.html"><strong>Manifesto & Protocolo P.A.R.T.E.</strong></a></li>
+                        <li><a href="https://paulolopes.org"><strong>O Artífice (Autor)</strong></a></li>
+                    </ul>
+
+                </div>
+
+                <!-- Bloco de Aforismo Gastronómico -->
+                <div class="gastro-callout">
+                    <span class="font-mono w3-tiny w3-uppercase" style="color: var(--accent-color); letter-spacing: 1px;">Investigação Gastronómica</span>
+                    <p style="margin-top: 8px;">
+                        "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
+                    </p>
                 </div>
             </aside>
 
-            <!-- COLUNA DIREITA: ARTIGO DA WIKI / CONCEITO -->
+            <!-- COLUNA DIREITA: ÚLTIMAS ENTRADAS DO SCRIPTORIUM -->
             <article class="w3-col m8 l9">
                 
-                <div class="w3-row-padding" style="margin: 0;">
-                    
-                    <!-- Ficha/Infobox Lateral do Conceito -->
-                    <div class="w3-col l5 w3-right" style="padding-left: 0;">
-                        <div class="wiki-infobox">
-                            <div class="wiki-infobox-title">Ficha de Conceito</div>
-                            <div class="wiki-infobox-row">
-                                <span class="wiki-infobox-label">Termo</span>
-                                <span class="wiki-infobox-value">Salitre</span>
-                            </div>
-                            <div class="wiki-infobox-row">
-                                <span class="wiki-infobox-label">Eixo</span>
-                                <span class="wiki-infobox-value">Matéria / Patologia</span>
-                            </div>
-                            <div class="wiki-infobox-row">
-                                <span class="wiki-infobox-label">Campo</span>
-                                <span class="wiki-infobox-value">Lavos / Costa</span>
-                            </div>
-                            <div class="wiki-infobox-row">
-                                <span class="wiki-infobox-label">Fórmula</span>
-                                <span class="wiki-infobox-value font-mono">KNO₃ / NaNO₃</span>
-                            </div>
-                        </div>
+                <h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                    Últimas Entradas no Caderno de Notas
+                </h2>
+
+                <!-- Entrada 1 -->
+                <div class="entry-card">
+                    <span class="entry-meta">COLHEITAS • 22 DE OUTUBRO DE 2026</span>
+                    <h3>Agenda para Nómada Europeu de Esquerda</h3>
+                    <p>
+                        <strong>= Novembro 2026 = Enjoy your trip!</strong>
+                    </p>
+                    <p style="font-size: 0.92rem; color: var(--muted-color);">
+                        Apontamentos e reflexões de itinerário sobre o pensamento crítico europeu, mobilidade territorial e o espaço político da margem ocidental.
+                    </p>
+                    <a href="corpus/colheitas/20261022-nomada-europeu.html" class="entry-link">Ler Entrada Completa &rarr;</a>
+                </div>
+
+                <!-- Entrada 2 -->
+                <div class="entry-card">
+                    <span class="entry-meta">SEMENTES • 17 DE OUTUBRO DE 2026</span>
+                    <h3>A Arte é Social</h3>
+                    <p>
+                        A arte até num castelo de marfim é social. Não se pode, numa sociedade, escrever poesia ou prosa, vendo-se livre da sociedade.
+                    </p>
+                    <div class="entry-citation">
+                        — Said Gufarov Gafurov, em <em>“Trotsky e a inteligência artificial.”</em> Traduzido por Adriano Zilhão, Jornal Maio (16 out. 2026).
                     </div>
+                    <br>
+                    <a href="corpus/sementes/20261017-arte-social.html" class="entry-link">Ver Ficha no Zettelkasten &rarr;</a>
+                </div>
 
-                    <!-- Conteúdo Principal do Artigo -->
-                    <div class="w3-rest">
-                        <h2 class="font-sans" style="font-size: 1.6rem; font-weight: 600; margin-top: 0; color: var(--text-color);">
-                            Salitre
-                        </h2>
+                <!-- Entrada 3 -->
+                <div class="entry-card">
+                    <span class="entry-meta">COLHEITAS • 16 DE OUTUBRO DE 2026</span>
+                    <h3>Alguns Problemas das Redes Sociais</h3>
+                    <p>
+                        As redes sociais são reflexo da sociedade actual. Hoje, o meio de produção cultural não se confina aos limites físicos da fábrica mas está diluído geograficamente. Os “operários” fabricam as mensagens, grosso modo, numa ilusão de participação livre e consciente. Contudo esta sua iniciativa está fortemente condicionada. O operário digital contemporâneo paga do seu próprio bolso os meios de produção...
+                    </p>
+                    <a href="corpus/colheitas/20261016-problemas-redes-sociais.html" class="entry-link">Ler Ensaio Desenvolvido &rarr;</a>
+                </div>
 
-                        <p style="text-align: justify; margin-top: 0;">
-                            O <strong>salitre</strong> (eflorescência salina cristalizada nas alvenarias pelo transporte capilar de água impregnada de sais marinhos) constitui a principal patologia e o agente escultórico silencioso na arquitectura vernacular do litoral de Lavos.
-                        </p>
-
-                        <p style="text-align: justify;">
-                            Longe de ser encarado apenas como um agente de degradação, na investigação da <a href="https://paulolopes.org/costa/" class="wiki-link">Casa da Costa</a> o salitre é lido enquanto indicador biopolítico e meteorológico. Revela a respirabilidade dos rebocos de <a href="cal.html" class="wiki-link">cal hidráulica</a> e afere a permeabilidade dos paramentos expostos aos ventos dominantes de Noroeste.
-                        </p>
-
-                        <h3 class="font-sans" style="font-size: 1.1rem; font-weight: 600; color: var(--accent-color); margin-top: 25px;">
-                            Dimensão Poética e Auto-Etnográfica
-                        </h3>
-
-                        <p style="text-align: justify;">
-                            Nas <a href="https://paulolopes.org/artefactos/laminas/" class="wiki-link">Lâminas da Série Lavos</a>, a eflorescência salina é transposta para o registo poético e visual, funcionando como metáfora da erosão provocada pelo tempo e pela aceleração da experiência urbana.
-                        </p>
-                    </div>
-
+                <!-- Bloco Zettelkasten / Método -->
+                <div class="warning-box" style="border-left-color: var(--text-color); margin-top: 30px;">
+                    <h3 class="font-sans" style="font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-top: 0;">Como Navegar Neste Espaço Zettelkasten</h3>
+                    <p style="font-size: 0.95rem; margin: 0;" align="justify">
+                        O que aqui encontras é o resultado de uma imersão em textos, imagens e sons; em ideias e conceitos; em símbolos. Ao criar este Zettelkasten (arquivo de notas interligadas), estabeleço um método para organizar o conhecimento obtido nessa viagem — dividindo as notas entre <strong>Sementes</strong> (fragmentos), <strong>Colheitas</strong> (ensaios) e <strong>Tinturas</strong> (ficção).
+                    </p>
                 </div>
 
             </article>
@@ -337,13 +396,17 @@
             </p>
             
             <div class="footer-links">
-                <a href="https://paulolopes.org">Início</a> &mdash; 
+                <a href="https://paulolopes.org">Início (paulolopes.org)</a> &mdash; 
                 <a href="https://paulolopes.org/artefactos/">Artefactos</a> &mdash; 
-                <a href="https://paulolopes.org/costa/">Casa da Costa</a>
+                <a href="https://costa.paulolopes.org">Casa da Costa</a> &mdash;
+                <a href="https://glossario.paulolopes.org">Glossário</a>
             </div>
             
             <p class="font-mono w3-tiny w3-uppercase w3-wide" style="letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--muted-color);">
-                 WIKI SOBERANA • PAULO FURTADO LOPES
+                SCRIPTORIUM DIGITAL • PAULO FURTADO LOPES • ENCODING: UTF-8
+            </p>
+            <p class="font-mono w3-tiny" style="color: var(--muted-color); margin: 0;">
+                Contacto: <a href="mailto:mail@paulolopes.org" style="color: inherit;">mail@paulolopes.org</a> | Subscrição: <a href="mailto:news@paulolopes.org" style="color: inherit;">news@paulolopes.org</a>
             </p>
         </footer>
 
