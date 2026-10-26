@@ -1,9 +1,353 @@
-<html>
-  <body>
-    scriptorium
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-    
-  </body>
+    <title>Salitre — Glossário & Wiki do Artífice | paulolopes.org</title>
 
-  
+    <!-- Framework W3.CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <style>
+        /* --- Paleta Soberana & Tipografia --- */
+        :root {
+            --bg-color: #fcfbf9;          /* Papel de arquivo / Marfim */
+            --text-color: #0f1e2d;        /* Azul-marinho profundo */
+            --accent-color: #8c2d19;      /* Vermelho óxido / Sanguínea */
+            --muted-color: #5c6b73;       /* Azul pedra / Salitre */
+            --border-color: #d8d3cd;      /* Linha de divisão subtil */
+            --card-bg: #ffffff;           /* Branco puro para leitura */
+            
+            --font-serif: "Cardo", "Georgia", "Times New Roman", serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            font-family: var(--font-serif);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-sans { font-family: var(--font-sans) !important; }
+        .font-mono { font-family: var(--font-mono) !important; }
+
+        /* Navegação Breadcrumb Superior */
+        .breadcrumb {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .breadcrumb a {
+            color: var(--muted-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent-color);
+        }
+
+        .breadcrumb span {
+            color: var(--accent-color);
+        }
+
+        /* Cabeçalho da Wiki */
+        header.wiki-header {
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        header.wiki-header h1 {
+            font-family: var(--font-sans);
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 0 0 6px 0;
+        }
+
+        /* Ligações Hipertextuais do Glossário (Wiki-Links) */
+        a.wiki-link {
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent-color);
+            transition: color 0.2s ease, border-style 0.2s ease;
+        }
+
+        a.wiki-link:hover {
+            color: var(--accent-color);
+            border-bottom-style: solid;
+        }
+
+        /* Menu Lateral da Wiki (Sidebar A-Z) */
+        .wiki-sidebar {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .wiki-sidebar h3 {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .wiki-alphabet {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .wiki-alphabet a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 2px 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+        }
+
+        .wiki-alphabet a:hover {
+            background: var(--accent-color);
+            color: #ffffff;
+            border-color: var(--accent-color);
+        }
+
+        .wiki-sidebar-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: var(--font-sans);
+            font-size: 0.92rem;
+        }
+
+        .wiki-sidebar-list li {
+            margin-bottom: 8px;
+        }
+
+        .wiki-sidebar-list a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .wiki-sidebar-list a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Infobox de Ficha de Arquivo */
+        .wiki-infobox {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-color);
+            padding: 18px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .wiki-infobox-title {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .wiki-infobox-row {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .wiki-infobox-label {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--muted-color);
+            text-transform: uppercase;
+        }
+
+        .wiki-infobox-value {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            color: var(--text-color);
+            text-align: right;
+        }
+
+        /* Rodapé Institucional */
+        .site-footer {
+            margin-top: 4rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--muted-color);
+            text-align: center;
+        }
+
+        .footer-links {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="w3-padding-large">
+
+    <main class="w3-content w3-padding-24" style="max-width: 1050px;">
+        
+        <!-- Breadcrumb Superior -->
+        <nav class="breadcrumb">
+            <a href="https://paulolopes.org">paulolopes.org</a> / <a href="./index.html">glossário</a> / <span>salitre</span>
+        </nav>
+
+        <!-- Cabeçalho -->
+        <header class="wiki-header">
+            <h1>Portal & Wiki do Artífice</h1>
+            <p class="font-sans w3-small w3-uppercase" style="letter-spacing: 1.5px; color: var(--accent-color); font-weight: 600; margin: 0;">
+                Arquivo de Conceitos, Matéria & Metodologia
+            </p>
+        </header>
+
+        <!-- Layout em Duas Colunas (Grelha W3.CSS) -->
+        <div class="w3-row-padding" style="margin-left: -16px; margin-right: -16px;">
+            
+            <!-- COLUNA ESQUERDA: ÍNDICE E ÍNDICE A-Z (Skins e Categorias) -->
+            <aside class="w3-col m4 l3">
+                <div class="wiki-sidebar">
+                    <h3>Índice Alfabético</h3>
+                    <div class="wiki-alphabet">
+                        <a href="#A">A</a> <a href="#C">C</a> <a href="#E">E</a> 
+                        <a href="#G">G</a> <a href="#L">L</a> <a href="#P">P</a> 
+                        <a href="#S">S</a> <a href="#T">T</a>
+                    </div>
+
+                    <h3>Conceitos em Destaque</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="alambique.html">Alambique Cultural</a></li>
+                        <li><a href="artifice.html">Artífice</a></li>
+                        <li><a href="cal.html">Cal Hidráulica</a></li>
+                        <li><a href="permacultura.html">Permacultura de Litoral</a></li>
+                        <li><strong>Salitre</strong></li>
+                        <li><a href="slow-web.html">Slow Web</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- COLUNA DIREITA: ARTIGO DA WIKI / CONCEITO -->
+            <article class="w3-col m8 l9">
+                
+                <div class="w3-row-padding" style="margin: 0;">
+                    
+                    <!-- Ficha/Infobox Lateral do Conceito -->
+                    <div class="w3-col l5 w3-right" style="padding-left: 0;">
+                        <div class="wiki-infobox">
+                            <div class="wiki-infobox-title">Ficha de Conceito</div>
+                            <div class="wiki-infobox-row">
+                                <span class="wiki-infobox-label">Termo</span>
+                                <span class="wiki-infobox-value">Salitre</span>
+                            </div>
+                            <div class="wiki-infobox-row">
+                                <span class="wiki-infobox-label">Eixo</span>
+                                <span class="wiki-infobox-value">Matéria / Patologia</span>
+                            </div>
+                            <div class="wiki-infobox-row">
+                                <span class="wiki-infobox-label">Campo</span>
+                                <span class="wiki-infobox-value">Lavos / Costa</span>
+                            </div>
+                            <div class="wiki-infobox-row">
+                                <span class="wiki-infobox-label">Fórmula</span>
+                                <span class="wiki-infobox-value font-mono">KNO₃ / NaNO₃</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo Principal do Artigo -->
+                    <div class="w3-rest">
+                        <h2 class="font-sans" style="font-size: 1.6rem; font-weight: 600; margin-top: 0; color: var(--text-color);">
+                            Salitre
+                        </h2>
+
+                        <p style="text-align: justify; margin-top: 0;">
+                            O <strong>salitre</strong> (eflorescência salina cristalizada nas alvenarias pelo transporte capilar de água impregnada de sais marinhos) constitui a principal patologia e o agente escultórico silencioso na arquitectura vernacular do litoral de Lavos.
+                        </p>
+
+                        <p style="text-align: justify;">
+                            Longe de ser encarado apenas como um agente de degradação, na investigação da <a href="https://paulolopes.org/costa/" class="wiki-link">Casa da Costa</a> o salitre é lido enquanto indicador biopolítico e meteorológico. Revela a respirabilidade dos rebocos de <a href="cal.html" class="wiki-link">cal hidráulica</a> e afere a permeabilidade dos paramentos expostos aos ventos dominantes de Noroeste.
+                        </p>
+
+                        <h3 class="font-sans" style="font-size: 1.1rem; font-weight: 600; color: var(--accent-color); margin-top: 25px;">
+                            Dimensão Poética e Auto-Etnográfica
+                        </h3>
+
+                        <p style="text-align: justify;">
+                            Nas <a href="https://paulolopes.org/artefactos/laminas/" class="wiki-link">Lâminas da Série Lavos</a>, a eflorescência salina é transposta para o registo poético e visual, funcionando como metáfora da erosão provocada pelo tempo e pela aceleração da experiência urbana.
+                        </p>
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Rodapé Institucional -->
+        <footer class="site-footer">
+            <p style="font-style: italic; font-family: var(--font-serif); margin-bottom: 0.8rem; color: var(--muted-color);">
+                "Enquanto a mão corta, a mente destila."
+            </p>
+            
+            <div class="footer-links">
+                <a href="https://paulolopes.org">Início</a> &mdash; 
+                <a href="https://paulolopes.org/artefactos/">Artefactos</a> &mdash; 
+                <a href="https://paulolopes.org/costa/">Casa da Costa</a>
+            </div>
+            
+            <p class="font-mono w3-tiny w3-uppercase w3-wide" style="letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--muted-color);">
+                 WIKI SOBERANA • PAULO FURTADO LOPES
+            </p>
+        </footer>
+
+    </main>
+
+</body>
 </html>
