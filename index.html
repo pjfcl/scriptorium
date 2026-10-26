@@ -110,7 +110,7 @@
             margin-bottom: 8px;
         }
 
-        /* Menu Lateral da Wiki */
+        /* Menu Lateral Direita (Sidebar) */
         .wiki-sidebar {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -256,7 +256,7 @@
         .site-footer {
             margin-top: 4rem;
             border-top: 1px solid var(--border-color);
-            padding-top: 2rem;
+            padding-top: 2.5rem;
             padding-bottom: 2rem;
             font-family: var(--font-sans);
             font-size: 0.85rem;
@@ -298,7 +298,7 @@
             <p class="header-sub">Reflexões, Ficção & Outras Narrativas</p>
         </header>
 
-        <!-- Mensagem de Boas-vindas / Enquadramento do Espaço -->
+        <!-- Mensagem de Enquadramento / Boas-vindas -->
         <section class="warning-box">
             <h2>Cuidado! Oficina de Resistência em Ação</h2>
             <p style="margin: 0;" align="justify">
@@ -306,49 +306,10 @@
             </p>
         </section>
 
-        <!-- Layout em Duas Colunas (Grelha W3.CSS) -->
+        <!-- Layout em Duas Colunas (Grelha W3.CSS - Conteúdo à Esquerda / Menu à Direita) -->
         <div class="w3-row-padding" style="margin-left: -16px; margin-right: -16px;">
             
-            <!-- COLUNA ESQUERDA: NAVEGAÇÃO & MAPA DO SCRIPTORIUM -->
-            <aside class="w3-col m4 l3">
-                <div class="wiki-sidebar">
-                    
-                    <h3>1. Corpus (Arquivo)</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="corpus/sementes/index.html"><strong>As Sementes</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Notas rápidas & citações</span></a></li>
-                        <li><a href="corpus/colheitas/index.html"><strong>A Colheita</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ensaios & leituras críticas</span></a></li>
-                        <li><a href="corpus/tinturas/index.html"><strong>As Tinturas</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ficção & narrativas</span></a></li>
-                    </ul>
-
-                    <h3>2. A Escola</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="escola/index.html"><strong>Cadernos da UAb</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Investigação & Humanidades</span></a></li>
-                    </ul>
-
-                    <h3>3. A Oficina</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="oficina/index.html"><strong>Humanidades Digitais</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Código, Scheme & Zettelkasten</span></a></li>
-                    </ul>
-
-                    <h3>4. Sobre</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="sobre/index.html"><strong>Manifesto & Protocolo P.A.R.T.E.</strong></a></li>
-                        <li><a href="https://paulolopes.org"><strong>O Artífice (Autor)</strong></a></li>
-                    </ul>
-
-                </div>
-
-                <!-- Bloco de Investigação Gastronómica / Caldo de Sabores -->
-                <div class="gastro-callout">
-                    <span class="font-mono w3-tiny w3-uppercase" style="color: var(--accent-color); letter-spacing: 1px;">Investigação Gastronómica</span>
-                    <p>
-                        "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
-                    </p>
-                    <a href="https://gastronomia.paulolopes.org" class="gastro-link">Caldo de Sabores &rarr;</a>
-                </div>
-            </aside>
-
-            <!-- COLUNA DIREITA: ÚLTIMAS ENTRADAS DO SCRIPTORIUM -->
+            <!-- COLUNA PRINCIPAL (ESQUERDA): ÚLTIMAS ENTRADAS -->
             <article class="w3-col m8 l9">
                 
                 <h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
@@ -392,20 +353,86 @@
                     <a href="corpus/colheitas/20261016-problemas-redes-sociais.html" class="entry-link">Ler Ensaio Desenvolvido &rarr;</a>
                 </div>
 
-                <!-- Bloco Zettelkasten / Método -->
-                <div class="warning-box" style="border-left-color: var(--text-color); margin-top: 30px;">
-                    <h3 class="font-sans" style="font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-top: 0;">Como Navegar Neste Espaço Zettelkasten</h3>
-                    <p style="font-size: 0.95rem; margin: 0;" align="justify">
-                        O que aqui encontras é o resultado de uma imersão em textos, imagens e sons; em ideias e conceitos; em símbolos. Ao criar este Zettelkasten (arquivo de notas interligadas), estabeleço um método para organizar o conhecimento obtido nessa viagem — dividindo as notas entre <strong>Sementes</strong> (fragmentos), <strong>Colheitas</strong> (ensaios) e <strong>Tinturas</strong> (ficção).
-                    </p>
+            </article>
+
+            <!-- COLUNA SECUNDÁRIA (DIREITA): NAVEGAÇÃO & MAPA DO SCRIPTORIUM -->
+            <aside class="w3-col m4 l3">
+                <div class="wiki-sidebar">
+                    
+                    <h3>1. Corpus (Arquivo)</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="corpus/sementes/index.html"><strong>As Sementes</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Notas rápidas & citações</span></a></li>
+                        <li><a href="corpus/colheitas/index.html"><strong>A Colheita</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ensaios & leituras críticas</span></a></li>
+                        <li><a href="corpus/tinturas/index.html"><strong>As Tinturas</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ficção & narrativas</span></a></li>
+                    </ul>
+
+                    <h3>2. A Escola</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="escola/index.html"><strong>Cadernos da UAb</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Investigação & Humanidades</span></a></li>
+                    </ul>
+
+                    <h3>3. A Oficina</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="oficina/index.html"><strong>Humanidades Digitais</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Código, Scheme & Zettelkasten</span></a></li>
+                    </ul>
+
+                    <h3>4. Sobre</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="sobre/index.html"><strong>Manifesto & Protocolo P.A.R.T.E.</strong></a></li>
+                        <li><a href="https://paulolopes.org"><strong>O Artífice (Autor)</strong></a></li>
+                    </ul>
+
                 </div>
 
-            </article>
+                <!-- Bloco de Investigação Gastronómica / Caldo de Sabores -->
+                <div class="gastro-callout">
+                    <span class="font-mono w3-tiny w3-uppercase" style="color: var(--accent-color); letter-spacing: 1px;">Investigação Gastronómica</span>
+                    <p>
+                        "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
+                    </p>
+                    <a href="https://gastronomia.paulolopes.org" class="gastro-link">Caldo de Sabores &rarr;</a>
+                </div>
+            </aside>
 
         </div>
 
-        <!-- Rodapé Institucional com Ligação à Gastronomia / Caldo de Sabores -->
+        <!-- MÓDULO DE SOBERANIA FINANCEIRA (CONTRIBUIÇÕES DIREITAS) -->
+        <section style="max-width: 650px; margin: 40px auto 20px auto; padding: 25px; background: #ffffff; border: 2px solid #0f1e2d; font-family: var(--font-mono);">
+            <h3 style="font-size: 1.05em; text-transform: uppercase; letter-spacing: 1px; color: #0f1e2d; border-bottom: 2px solid #8c2d19; padding-bottom: 8px; margin-top: 0; font-family: var(--font-sans); font-weight: 600;">
+                Soberania Financeira • Apoiar a Oficina
+            </h3>
+            
+            <p style="font-size: 0.9em; color: #333; text-align: justify; font-family: var(--font-serif); line-height: 1.6;">
+                Este arquivo resistente e os artefactos da <strong>Arca dos Comuns</strong> mantêm-se livres de publicidade, patrocínios corporativos e rastreadores digitais. Se o teu trabalho e o teu pensamento encontram utilidade nesta oficina, podes contribuir diretamente para a manutenção do servidor soberano, compra de papel de linho e subsistência do artífice.
+            </p>
+
+            <div style="margin: 20px 0; padding: 15px; background: #fffdf0; border-left: 4px solid #ffcc00;">
+                <p style="margin: 0 0 10px 0; font-size: 0.88em; font-weight: bold; color: #006633; font-family: var(--font-sans);">Opção A — Contributo Direto (PayPal):</p>
+                <a href="https://paypal.me/o_teu_utilizador" target="_blank" rel="noopener" style="display: inline-block; padding: 10px 20px; background: #0f1e2d; color: #ffffff; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 0.8em; font-family: var(--font-sans); letter-spacing: 1px;">Enviar Contributo via PayPal</a>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 0.85em; color: #555; font-family: var(--font-sans);">
+                <p style="margin: 0;"><strong>Opção B — Transferência Bancária (IBAN Soberano):</strong> Podes solicitar o IBAN diretamente por correio eletrónico para <a href="mailto:adm@paulolopes.org" style="color: #8c2d19; text-decoration: underline;">adm@paulolopes.org</a>.</p>
+            </div>
+
+            <div style="margin-top: 20px; border-top: 1px solid #d8d3cd; padding-top: 10px; font-size: 0.78em; text-align: center; color: #777; font-style: italic; font-family: var(--font-serif);">
+                "O metal bate-se enquanto está quente. A solidariedade constrói-se sem intermediários."
+            </div>
+        </section>
+
+        <!-- RODAPÉ INSTITUCIONAL & ENQUADRAMENTO ZETTELKASTEN -->
         <footer class="site-footer">
+            
+            <!-- Secção Integrada do Zettelkasten -->
+            <div style="max-width: 750px; margin: 0 auto 30px auto; padding: 20px; border-top: 1px dashed var(--border-color); border-bottom: 1px dashed var(--border-color); text-align: justify;">
+                <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); margin-top: 0; margin-bottom: 8px; text-align: center;">
+                    Como Navegar Neste Espaço Zettelkasten
+                </h4>
+                <p style="font-size: 0.92rem; color: var(--text-color); margin: 0; line-height: 1.7;">
+                    O que aqui encontras é o resultado de uma imersão em textos, imagens e sons; em ideias e conceitos; em símbolos. Ao criar este Zettelkasten (arquivo de notas interligadas), estabeleço um método para organizar o conhecimento obtido nessa viagem — dividindo as notas entre <strong>Sementes</strong> (fragmentos e citações), <strong>Colheitas</strong> (ensaios desenvolvidos) e <strong>Tinturas</strong> (ficção e narrativas experimentais), articuladas com os cadernos de estudo da <strong>Escola</strong> e as ferramentas da <strong>Oficina</strong>.
+                </p>
+            </div>
+
             <p style="font-style: italic; font-family: var(--font-serif); margin-bottom: 0.8rem; color: var(--muted-color);">
                 "Enquanto a mão corta, a mente destila."
             </p>
@@ -422,7 +449,7 @@
                 SCRIPTORIUM DIGITAL • PAULO FURTADO LOPES • ENCODING: UTF-8
             </p>
             <p class="font-mono w3-tiny" style="color: var(--muted-color); margin: 0;">
-                Contacto: <a href="mailto:mail@paulolopes.org" style="color: inherit;">mail@paulolopes.org</a> | Subscrição: <a href="mailto:news@paulolopes.org" style="color: inherit;">news@paulolopes.org</a>
+                Contacto: <a href="mailto:mail@paulolopes.org" style="color: inherit;">mail@paulolopes.org</a> | Administração: <a href="mailto:adm@paulolopes.org" style="color: inherit;">adm@paulolopes.org</a>
             </p>
         </footer>
 
