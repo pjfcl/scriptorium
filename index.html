@@ -220,7 +220,7 @@
             background-color: var(--accent-color);
         }
 
-        /* Bloco Destacado: Investigação Gastronómica (Caldo de Sabores) */
+        /* Bloco Destacado: Investigação Gastronómica */
         .gastro-callout {
             background-color: var(--bg-color);
             border: 1px solid var(--border-color);
@@ -258,11 +258,11 @@
             background-color: var(--text-color);
             color: #ffffff !important;
             font-family: var(--font-sans);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            padding: 12px 26px;
+            padding: 10px 20px;
             text-decoration: none;
             border: 1px solid var(--text-color);
             transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -417,40 +417,40 @@
 
         </div>
 
-        <!-- MÓDULO DE SOBERANIA FINANCEIRA (CONTRIBUIÇÕES DIREITAS) -->
-        <section style="max-width: 650px; margin: 40px auto 20px auto; padding: 25px; background: #ffffff; border: 2px solid #0f1e2d; font-family: var(--font-mono);">
-            <h3 style="font-size: 1.05em; text-transform: uppercase; letter-spacing: 1px; color: #0f1e2d; border-bottom: 2px solid #8c2d19; padding-bottom: 8px; margin-top: 0; font-family: var(--font-sans); font-weight: 600;">
-                Apoiar a Oficina
-            </h3>
-            
-            <p style="font-size: 0.9em; color: #333; text-align: justify; font-family: var(--font-serif); line-height: 1.6;">
-                Este arquivo resistente e os seus artefactos mantêm-se livres de publicidade, patrocínios corporativos e rastreadores digitais. Se o teu trabalho e o teu pensamento encontram utilidade nesta oficina, podes contribuir diretamente para a manutenção do servidor, compra de papel e subsistência do artífice.
-            </p>
-
-            
-        
-
-  <div class="w3-center" style="margin-top: 40px; margin-bottom: 20px;">
-                    <a href="https://paypal.me/PauloFurtadoLopes" target="_blank" rel="noopener" class="btn-donativos">
-                        Donativos
-                    </a>
-                </div>
-            
-        </section>
-
-        <!-- RODAPÉ INSTITUCIONAL & ENQUADRAMENTO ZETTELKASTEN -->
+        <!-- RODAPÉ INSTITUCIONAL COM ZETTELKASTEN E DONATIVOS LADO A LADO -->
         <footer class="site-footer">
             
-            <!-- Secção Integrada do Zettelkasten -->
-            <div style="max-width: 750px; margin: 0 auto 30px auto; padding: 20px; border-top: 1px dashed var(--border-color); border-bottom: 1px dashed var(--border-color); text-align: justify;">
-                <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); margin-top: 0; margin-bottom: 8px; text-align: center;">
-                    Como Navegar Neste Espaço Zettelkasten
-                </h4>
-                <p style="font-size: 0.92rem; color: var(--text-color); margin: 0; line-height: 1.7;">
-                    O que aqui encontras é o resultado de uma imersão em textos, imagens e sons; em ideias e conceitos; em símbolos. Ao criar este Zettelkasten (arquivo de notas interligadas), estabeleço um método para organizar o conhecimento obtido nessa viagem — dividindo as notas entre <strong>Sementes</strong> (fragmentos e citações), <strong>Colheitas</strong> (ensaios desenvolvidos) e <strong>Tinturas</strong> (ficção e narrativas experimentais), articuladas com os cadernos de estudo da <strong>Escola</strong> e as ferramentas da <strong>Oficina</strong>.
-                </p>
+            <!-- Grelha Lado a Lado no Rodapé -->
+            <div class="w3-row-padding w3-text-left" style="margin-bottom: 30px; padding-bottom: 25px; border-top: 1px dashed var(--border-color); border-bottom: 1px dashed var(--border-color);">
+                
+                <!-- Coluna Esquerda: Explicação Zettelkasten -->
+                <div class="w3-col m8 l8" style="padding-top: 20px;">
+                    <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); margin-top: 0; margin-bottom: 10px;">
+                        Como Navegar Neste Espaço Zettelkasten
+                    </h4>
+                    <p style="font-size: 0.9rem; color: var(--text-color); margin: 0; line-height: 1.7; text-align: justify;">
+                        O que aqui encontras é o resultado de uma imersão em textos, imagens e sons; em ideias e conceitos; em símbolos. Ao criar este Zettelkasten (arquivo de notas interligadas), estabeleço um método para organizar o conhecimento obtido nessa viagem — dividindo as notas entre <strong>Sementes</strong> (fragmentos e citações), <strong>Colheitas</strong> (ensaios desenvolvidos) e <strong>Tinturas</strong> (ficção e narrativas experimentais), articuladas com os cadernos de estudo da <strong>Escola</strong> e as ferramentas da <strong>Oficina</strong>.
+                    </p>
+                </div>
+
+                <!-- Coluna Direita: Apoiar a Oficina / Donativos -->
+                <div class="w3-col m4 l4" style="padding-top: 20px; border-left: 1px solid var(--border-color);">
+                    <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-color); margin-top: 0; margin-bottom: 10px;">
+                        Apoiar a Oficina
+                    </h4>
+                    <p style="font-size: 0.85rem; color: var(--muted-color); margin: 0 0 14px 0; line-height: 1.5; text-align: justify;">
+                        Este arquivo livre de publicidade e rastreadores subsiste com o apoio independente da comunidade.
+                    </p>
+                    <div class="w3-center">
+                        <a href="https://paypal.me/PauloFurtadoLopes" target="_blank" rel="noopener" class="btn-donativos">
+                            Donativos via PayPal
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
+            <!-- Aforismo centralizado por cima dos links -->
             <p style="font-style: italic; font-family: var(--font-serif); margin-bottom: 0.8rem; color: var(--muted-color);">
                 "Enquanto a mão corta, a mente destila."
             </p>
