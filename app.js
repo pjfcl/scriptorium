@@ -4,9 +4,9 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Pastas estritamente em minúsculas)
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Pastas em minúsculas)
 const manifest = [
-    // CORPUS (Categoria correta: colheita, Tipo: ensaio)
+    // CORPUS
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
     'corpus/md/20261017_arte-e-social.md',
     'corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
@@ -61,7 +61,6 @@ async function carregarCapaPrincipal() {
         const fetchUrl = getFetchUrl(relPath);
         try {
             const res = await fetch(fetchUrl);
-            
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
@@ -70,38 +69,25 @@ async function carregarCapaPrincipal() {
                 artigos.push({
                     path: relPath,
                     slug: pathParts.pop().replace('.md', ''),
-                    section: pathParts[0],
+                    section: pathParts[0], // ex: 'corpus', 'escola', 'oficina'
                     meta: parsed.meta,
                     content: parsed.content
                 });
-                console.log(`[Scriptorium] Carregado com sucesso: ${fetchUrl}`);
-            } else {
-                console.warn(`[Scriptorium] Aviso: Ficheiro não encontrado (HTTP ${res.status}) em ${fetchUrl}`);
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro de rede ao aceder a ${fetchUrl}:`, e);
+            console.error(`[Scriptorium] Erro ao aceder a ${fetchUrl}:`, e);
         }
     }
 
-    // Se nenhum artigo foi carregado após verificar o manifesto todo
     if (artigos.length === 0) {
-        container.innerHTML = `
-            <div class="w3-padding-16" style="border-left: 3px solid var(--accent-color); padding-left: 15px;">
-                <p class="font-mono w3-small" style="color: var(--accent-color); font-weight: bold; margin-bottom: 5px;">
-                    Aviso do Motor: Nenhum ficheiro .md respondido pelo servidor.
-                </p>
-                <p class="font-mono w3-tiny" style="color: var(--muted-color); margin: 0;">
-                    Prime <strong>F12</strong> no teclado, vai ao separador <strong>Console</strong> e vê qual o URL exato que devolveu erro 404.
-                </p>
-            </div>
-        `;
+        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum ficheiro Markdown carregado.</p>`;
         return;
     }
 
-    // Ordenação cronológica decrescente (mais recente primeiro)
+    // Ordenação cronológica decrescente
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
 
-    // Filtragem: Apenas 1 artigo mais recente por categoria
+    // 1 artigo mais recente por categoria/secção
     const categoriasVistas = new Set();
     const ultimosPorCategoria = [];
 
@@ -113,9 +99,9 @@ async function carregarCapaPrincipal() {
         }
     }
 
-    // Construção visual dos cartões 100% clicáveis
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
+        // CORREÇÃO CRUCIGA: Garante que o link aponta corretamente para a pasta da secção a partir da raiz
         const linkUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
@@ -156,7 +142,7 @@ async function roteadorSeccao() {
     const artigoSlug = urlParams.get('artigo');
     const categoriaFiltro = urlParams.get('cat');
 
-    // MODO A: LEITURA INTEGRAL DE ARTIGO (?artigo=slug)
+    // MODO A: LEITURA DE ARTIGO ESPECÍFICO (?artigo=slug)
     if (artigoSlug) {
         try {
             const fetchUrl = `./md/${artigoSlug}.md`;
@@ -197,7 +183,7 @@ async function roteadorSeccao() {
         return;
     }
 
-    // MODO B: LISTAGEM E FILTRAGEM DE ENTRADAS
+    // MODO B: LISTAGEM DA SECÇÃO
     let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
         ${categoriaFiltro ? 'Categoria: ' + categoriaFiltro.toUpperCase() : 'Índice Geral de ' + seccaoAtiva.toUpperCase()}
     </h2>`;
@@ -241,10 +227,9 @@ async function roteadorSeccao() {
 }
 
 /* ==========================================================================
-   4. INICIALIZAÇÃO AUTOMÁTICA
+   4. INICIALIZAÇÃO
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     carregarCapaPrincipal();
     roteadorSeccao();
 });
-
