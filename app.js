@@ -1,12 +1,9 @@
 /* ==========================================================================
-   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor Universal com Manifesto JSON (app.js)
+   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor SPA (app.js)
    Soberania Digital, Humanidades & Arquitetura Estática
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-/**
- * Parser de YAML Front Matter e Markdown
- */
 function parseMarkdown(text) {
     const regex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
     const match = text.match(regex);
@@ -23,15 +20,12 @@ function parseMarkdown(text) {
     return { meta: {}, content: text };
 }
 
-/**
- * Lê o manifest.json e carrega todos os artigos do Scriptorium
- */
 async function carregarTodosArtigos() {
     let artigos = [];
 
     try {
         const manifestRes = await fetch('manifest.json');
-        if (!manifestRes.ok) throw new Error("Não foi possível carregar o manifesto.");
+        if (!manifestRes.ok) throw new Error("Não foi possível carregar o manifest.json");
         
         const manifestData = await manifestRes.json();
         const entradas = manifestData.artigos || [];
@@ -56,23 +50,19 @@ async function carregarTodosArtigos() {
             }
         }
     } catch (e) {
-        console.error("[Scriptorium] Erro ao carregar manifest.json:", e);
+        console.error("[Scriptorium] Erro ao carregar manifesto:", e);
     }
 
-    // Ordenação cronológica decrescente por data
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
     return artigos;
 }
 
-/* ==========================================================================
-   2. MOTOR DA CAPA PRINCIPAL (Home View)
-   ========================================================================== */
 async function renderizarCapa(artigos) {
     const container = document.getElementById('entradas-recentes');
     if (!container) return;
 
     if (artigos.length === 0) {
-        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum registo encontrado no Scriptorium.</p>`;
+        container.innerHTML = `<p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">Nenhum registo encontrado no Scriptorium.</p>`;
         return;
     }
 
@@ -95,9 +85,6 @@ async function renderizarCapa(artigos) {
     container.innerHTML = htmlOutput;
 }
 
-/* ==========================================================================
-   3. ROTEADOR SPA (Gestão de Vistas por Parâmetros de URL)
-   ========================================================================== */
 async function router() {
     const urlParams = new URLSearchParams(window.location.search);
     const seccaoParam = urlParams.get('seccao');
@@ -112,7 +99,6 @@ async function router() {
 
     const artigos = await carregarTodosArtigos();
 
-    // CASO A: LEITURA DE UM ARTIGO ESPECÍFICO (?artigo=slug)
     if (artigoParam) {
         viewHome.style.display = 'none';
         viewContent.style.display = 'block';
@@ -127,26 +113,25 @@ async function router() {
                     <h2 class="font-sans" style="font-size: 1.8rem; font-weight: 600; color: var(--text-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
                         ${artigo.meta.title || 'Sem título'}
                     </h2>
-                    <div class="markdown-body" style="margin-top: 20px;">
+                    <div class="markdown-body" style="margin-top: 25px; font-size: 1.05rem;">
                         ${marked.parse(artigo.content)}
                     </div>
-                    <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                        <a href="index.html" class="font-mono w3-small" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
+                    <div style="margin-top: 45px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <a href="index.html" class="font-mono" style="font-size: 0.82rem; color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
                     </div>
                 </article>
             `;
         } else {
             dynamicContainer.innerHTML = `
-                <div class="w3-padding-24">
-                    <p class="font-mono w3-small" style="color: var(--accent-color);">O artigo <code>${artigoParam}</code> não foi encontrado.</p>
-                    <a href="index.html" class="font-mono w3-small" style="color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Início</a>
+                <div style="padding: 30px 0;">
+                    <p class="font-mono" style="font-size: 0.85rem; color: var(--accent-color);">O artigo <code>${artigoParam}</code> não foi encontrado.</p>
+                    <a href="index.html" class="font-mono" style="font-size: 0.82rem; color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Início</a>
                 </div>
             `;
         }
         return;
     }
 
-    // CASO B: LISTAGEM DE UMA SECÇÃO (?seccao=nome)
     if (seccaoParam) {
         viewHome.style.display = 'none';
         viewContent.style.display = 'block';
@@ -155,7 +140,7 @@ async function router() {
 
         const filtrados = artigos.filter(a => a.section.toLowerCase() === seccaoParam.toLowerCase());
         
-        let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
             Secção: ${seccaoParam.toUpperCase()}
         </h2>`;
 
@@ -174,12 +159,12 @@ async function router() {
                 `;
             });
         } else {
-            htmlOutput += `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum registo encontrado nesta secção.</p>`;
+            htmlOutput += `<p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">Nenhum registo encontrado nesta secção.</p>`;
         }
 
         htmlOutput += `
-            <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                <a href="index.html" class="font-mono w3-small" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
+            <div style="margin-top: 45px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <a href="index.html" class="font-mono" style="font-size: 0.82rem; color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
             </div>
         `;
 
@@ -187,15 +172,11 @@ async function router() {
         return;
     }
 
-    // CASO C: VISTA DE CAPA PADRÃO
     viewHome.style.display = 'block';
     viewContent.style.display = 'none';
     await renderizarCapa(artigos);
 }
 
-/* ==========================================================================
-   4. INICIALIZAÇÃO
-   ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     router();
 });
