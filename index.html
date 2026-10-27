@@ -3,115 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scriptorium Digital • Paulo Furtado Lopes</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <title>Scriptorium Digital — Reflexões, Ficção & Humanidades | Paulo Lopes</title>
+
+    <!-- Framework W3.CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     
-    <!-- Google Fonts: Inter, Cardo & Fira Code -->
+    <!-- Google Fonts: Cardo, Inter & Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <!-- Folha de Estilos Exclusiva -->
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Dependências para o Motor (YAML e Marked) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.js"></script>
 </head>
-<body>
+<body class="w3-padding-large">
 
-    <div class="scriptorium-container">
+    <main class="w3-content w3-padding-24" style="max-width: 1100px;">
         
-        <!-- CABEÇALHO CLÁSSICO -->
-        <header class="scriptorium-header">
-            <a href="index.html" class="site-title">Scriptorium Digital</a>
-            <nav class="site-nav">
-                <a href="index.html?seccao=corpus">Corpus</a>
-                <a href="index.html?seccao=escola">Escola</a>
-                <a href="index.html?seccao=oficina">Oficina</a>
-                <a href="index.html?seccao=sobre">Sobre</a>
-                <a href="https://paulolopes.org">&larr; Paulolopes.org</a>
-            </nav>
+        <!-- Breadcrumb Superior -->
+        <nav class="breadcrumb">
+            <a href="https://paulolopes.org">paulolopes.org</a> / <span>scriptorium digital</span>
+        </nav>
+
+        <!-- Cabeçalho Principal Original -->
+        <header class="wiki-header">
+            <h1>Scriptorium Digital</h1>
+            <p class="header-sub">Reflexões, Ficção & Outras Narrativas</p>
         </header>
 
-        <!-- SECÇÃO PRINCIPAL / DINÂMICA -->
-        <main id="app-main">
+        <!-- Mensagem de Enquadramento / Boas-vindas -->
+        <section class="warning-box">
+            <h2>Cuidado! Oficina de Resistência em Ação</h2>
+            <p style="margin: 0;" align="justify">
+                Não estás a entrar num museu asséptico, mas sim numa oficina de resistência. Este é um jardim digital cultivado para consulta e destilação de ideias, fora do fluxo das redes sociais e da interacção imediata. Isento dos estímulos acelerados da sociedade contemporânea, este portal reúne apontamentos, teoria e outros escritos que exploram a cultura, o pensamento e a expressão humana. Sê bem-vindo!
+            </p>
+        </section>
+
+        <!-- Layout em Duas Colunas Original -->
+        <div class="w3-row-padding" style="margin-left: -16px; margin-right: -16px;">
             
-            <!-- VISTA DE CAPA (HOME) -->
-            <div id="view-home">
-                <section class="hero-section">
-                    <p class="hero-subtitle">Paulolopes.org / Scriptorium Digital</p>
-                    <h1>Reflexões, Ficção & Outras Narrativas</h1>
+            <!-- COLUNA PRINCIPAL: VISTA DINÂMICA (CAPA OU ARTIGOS) -->
+            <article class="w3-col m8 l9">
+                
+                <!-- VISTA DE CAPA (HOME) -->
+                <div id="view-home">
+                    <h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                        Últimas Entradas no Caderno de Notas
+                    </h2>
+
+                    <!-- Contentor onde o app.js insere os cartões dos .md -->
+                    <div id="entradas-recentes">
+                        <p class="font-mono w3-small" style="color: var(--muted-color);">A ler as últimas notas do arquivo...</p>
+                    </div>
+                </div>
+
+                <!-- VISTA DE SECÇÃO / ARTIGO COMPLETO -->
+                <div id="view-content" style="display: none;">
+                    <div id="dynamic-container">
+                        <!-- Conteúdo Markdown renderizado via JavaScript -->
+                    </div>
+                </div>
+
+            </article>
+
+            <!-- COLUNA SECUNDÁRIA (DIREITA): NAVEGAÇÃO TEXTUAL ORIGINAL -->
+            <aside class="w3-col m4 l3">
+                <div class="wiki-sidebar">
                     
-                    <div class="manifesto-box">
-                        <strong>Cuidado! Oficina de Resistência em Ação</strong><br>
-                        Não estás a entrar num museu asséptico, mas sim numa oficina de resistência. Este é um jardim digital cultivado para consulta e destilação de ideias, fora do fluxo das redes sociais e da interacção imediata. Isento dos estímulos acelerados da sociedade contemporânea, este portal reúne apontamentos, teoria e outros escritos que exploram a cultura, o pensamento e a expressão humana. Sê bem-vindo!
-                    </div>
-                </section>
+                    <h3>1. Corpus</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="index.html?seccao=corpus"><strong>As Sementes & Colheitas</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ensaios, notas & citações</span></a></li>
+                    </ul>
 
-                <!-- CONTEÚDO DINÂMICO (ENTRADAS RECENTES) -->
-                <div class="section-title">Últimas Entradas no Caderno de Notas</div>
-                <div id="entradas-recentes">
-                    <p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">A carregar registos do Scriptorium...</p>
+                    <h3>2. A Escola</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="index.html?seccao=escola"><strong>Cadernos da UAb</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Investigação & Humanidades</span></a></li>
+                    </ul>
+
+                    <h3>3. A Oficina</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="index.html?seccao=oficina"><strong>Humanidades Digitais</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Código, Scheme & Critical Code Studies</span></a></li>
+                    </ul>
+
+                    <h3>4. Sobre</h3>
+                    <ul class="wiki-sidebar-list">
+                        <li><a href="index.html?seccao=sobre"><strong>Manifesto & Protocolo P.A.R.T.E.</strong></a></li>
+                        <li><a href="https://paulolopes.org"><strong>O Artífice (Autor)</strong></a></li>
+                    </ul>
+
                 </div>
 
-                <!-- ESTRUTURA CLÁSSICA -->
-                <div class="section-title">Estrutura do Scriptorium</div>
-                <div class="navigation-grid">
-                    <div class="nav-block">
-                        <h4><a href="index.html?seccao=corpus">1. Corpus</a></h4>
-                        <ul>
-                            <li><a href="index.html?seccao=corpus">As Sementes</a> (Notas rápidas & citações)</li>
-                            <li><a href="index.html?seccao=corpus">A Colheita</a> (Ensaios & leituras)</li>
-                            <li><a href="index.html?seccao=corpus">As Tinturas</a> (Ficção & narrativas)</li>
-                        </ul>
-                    </div>
-                    <div class="nav-block">
-                        <h4><a href="index.html?seccao=escola">2. A Escola</a></h4>
-                        <ul>
-                            <li><a href="index.html?seccao=escola">Cadernos da UAb</a> (Investigação & Humanidades)</li>
-                        </ul>
-                    </div>
-                    <div class="nav-block">
-                        <h4><a href="index.html?seccao=oficina">3. A Oficina</a></h4>
-                        <ul>
-                            <li><a href="index.html?seccao=oficina">Humanidades Digitais</a> (Código, Scheme & Critical Code Studies)</li>
-                        </ul>
-                    </div>
-                    <div class="nav-block">
-                        <h4><a href="index.html?seccao=sobre">4. Sobre</a></h4>
-                        <ul>
-                            <li><a href="index.html?seccao=sobre">Manifesto & Protocolo P.A.R.T.E.</a></li>
-                            <li><a href="index.html?seccao=sobre">O Artífice & Investigação</a></li>
-                        </ul>
+                <!-- Bloco de Investigação Gastronómica -->
+                <div class="gastro-callout">
+                    <span class="font-mono w3-tiny w3-uppercase" style="color: var(--accent-color); letter-spacing: 1px;">Investigação Gastronómica</span>
+                    <p>
+                        "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
+                    </p>
+                    <a href="https://gastronomia.paulolopes.org" class="gastro-link">Gastronomia &rarr;</a>
+                </div>
+            </aside>
+
+        </div>
+
+        <!-- RODAPÉ INSTITUCIONAL ORIGINAL -->
+        <footer class="site-footer">
+            
+            <div class="footer-boxes-container w3-row w3-text-left">
+                
+                <div class="w3-col m8 l8 footer-box-left">
+                    <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); margin-top: 0; margin-bottom: 10px;">
+                        Como Navegar Neste Espaço
+                    </h4>
+                    <p style="font-size: 0.9rem; color: var(--text-color); margin: 0; line-height: 1.7; text-align: justify;">
+                        O que aqui encontras é o resultado de uma imersão em textos, imagens e sons; em ideias e conceitos; em símbolos. Ao criar este arquivo de notas interligadas, estabeleço um método para organizar o conhecimento obtido nessa viagem — dividindo as notas entre <strong>Sementes</strong> (fragmentos e citações), <strong>Colheitas</strong> (ensaios desenvolvidos) e <strong>Tinturas</strong> (ficção e narrativas experimentais), articuladas com os cadernos de estudo da <strong>Escola</strong> e as ferramentas da <strong>Oficina</strong>.
+                    </p>
+                </div>
+
+                <div class="w3-col m4 l4 footer-box-right">
+                    <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-color); margin-top: 0; margin-bottom: 10px;">
+                        Apoiar a Oficina
+                    </h4>
+                    <p style="font-size: 0.85rem; color: var(--muted-color); margin: 0 0 14px 0; line-height: 1.5; text-align: justify;">
+                        Este arquivo livre de publicidade e rastreadores subsiste com o apoio independente da comunidade.
+                    </p>
+                    <div class="w3-center">
+                        <a href="https://paypal.me/PauloFurtadoLopes" target="_blank" rel="noopener" class="btn-donativos">
+                            Donativos via PayPal
+                        </a>
                     </div>
                 </div>
 
-                <div class="quote-box">
-                    "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
-                </div>
             </div>
 
-            <!-- VISTA DE SECÇÃO / ARTIGO COMPLETO -->
-            <div id="view-content" style="display: none;">
-                <div class="font-mono" id="breadcrumb" style="margin-bottom: 25px; font-size: 0.8rem; color: var(--muted-color);">
-                    <a href="index.html" style="color: var(--accent-color); text-decoration: none;">Início</a> / <span id="breadcrumb-current">Secção</span>
-                </div>
-                <div id="dynamic-container">
-                    <!-- Conteúdo renderizado via JavaScript -->
-                </div>
+            <p style="font-style: italic; font-family: var(--font-serif); margin-bottom: 0.8rem; color: var(--muted-color);">
+                "Enquanto a mão corta, a mente destila."
+            </p>
+            
+            <div class="footer-links">
+                <a href="https://paulolopes.org">Início</a> &mdash; 
+                <a href="https://paulolopes.org/artefactos/">Artefactos</a> &mdash; 
+                <a href="https://costa.paulolopes.org">Casa da Costa</a> &mdash; 
+                <a href="https://gastronomia.paulolopes.org">Gastronomia</a> &mdash; 
+                <a href="https://glossario.paulolopes.org">Glossario</a>
             </div>
-
-        </main>
-
-        <!-- RODAPÉ CLÁSSICO -->
-        <footer class="scriptorium-footer">
-            <span>Paulo Jorge Furtado Cardoso Lopes • SCRIPTORIUM DIGITAL</span>
-            <a href="https://paulolopes.org">paulolopes.org</a>
+            
+            <p class="font-mono w3-tiny w3-uppercase w3-wide" style="letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--muted-color);">
+                SCRIPTORIUM DIGITAL • PAULO FURTADO LOPES • ENCODING: UTF-8
+            </p>
+            <p class="font-mono w3-tiny" style="color: var(--muted-color); margin: 0;">
+                Contacto: <a href="mailto:mail@paulolopes.org" style="color: inherit;">mail@paulolopes.org</a>
+            </p>
         </footer>
 
-    </div>
+    </main>
 
-    <!-- MOTOR SPA (app.js) -->
+    <!-- DEPENDÊNCIAS DO MOTOR SPA -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml/dist/js-yaml.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
