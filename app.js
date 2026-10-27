@@ -4,9 +4,9 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Caminhos absolutos a partir da raiz do domínio)
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Caminhos absolutos a partir da raiz)
 const manifest = [
-    // CORPUS
+    // CORPUS (Sementes, Colheitas, Tinturas)
     '/corpus/md/20261022_nomada-europeu-de-esquerda.md',
     '/corpus/md/20261017_arte-e-social.md',
     '/corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
@@ -15,7 +15,7 @@ const manifest = [
     '/escola/md/20261010_caderno-uab-autoetnografia.md',
     
     // OFICINA
-    '/oficina/md/2005_critical-code-studies.md' // Ajustado se necessário para 20261005_critical-code-studies.md
+    '/oficina/md/20261005_critical-code-studies.md'
 ];
 
 /**
@@ -42,7 +42,7 @@ function parseMarkdown(text) {
    ========================================================================== */
 async function carregarCapaPrincipal() {
     const container = document.getElementById('entradas-recentes');
-    if (!container) return;
+    if (!container) return; // Se não estiver na capa, interrompe
 
     let artigos = [];
 
@@ -72,10 +72,10 @@ async function carregarCapaPrincipal() {
         return;
     }
 
-    // Ordenação cronológica decrescente
+    // Ordenação cronológica decrescente por data
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
 
-    // 1 artigo mais recente por categoria/secção
+    // Seleciona o item mais recente por cada secção/categoria principal
     const categoriasVistas = new Set();
     const ultimosPorCategoria = [];
 
@@ -123,7 +123,7 @@ async function roteadorSeccao() {
         }
     }
 
-    if (!container) return;
+    if (!container) return; // Se nenhuma secção ativa for encontrada, sai
 
     const urlParams = new URLSearchParams(window.location.search);
     const artigoSlug = urlParams.get('artigo');
@@ -131,7 +131,7 @@ async function roteadorSeccao() {
 
     // MODO A: LEITURA DE ARTIGO ESPECÍFICO (?artigo=slug)
     if (artigoSlug) {
-        // Encontra no manifesto o caminho absoluto exato correspondente a este slug
+        // Procura no manifesto o caminho absoluto correspondente ao slug ou constrói o fallback
         const manifestoMatch = manifest.find(p => p.includes(`${artigoSlug}.md`));
         const fetchUrl = manifestoMatch || `/${seccaoAtiva}/md/${artigoSlug}.md`;
 
@@ -172,7 +172,7 @@ async function roteadorSeccao() {
         return;
     }
 
-    // MODO B: LISTAGEM DA SECÇÃO
+    // MODO B: LISTAGEM DA SECÇÃO (Índice)
     let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
         ${categoriaFiltro ? 'Categoria: ' + categoriaFiltro.toUpperCase() : 'Índice Geral de ' + seccaoAtiva.toUpperCase()}
     </h2>`;
@@ -215,7 +215,7 @@ async function roteadorSeccao() {
 }
 
 /* ==========================================================================
-   4. INICIALIZAÇÃO
+   4. INICIALIZAÇÃO AUTOMÁTICA
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     carregarCapaPrincipal();
