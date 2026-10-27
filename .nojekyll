@@ -1,0 +1,4 @@
+touch .nojekyll
+git add .nojekyll
+git commit -m "Fix: Adiciona .nojekyll para desativar Jekyll e servir ficheiros .md estáticos"
+git push origin main
