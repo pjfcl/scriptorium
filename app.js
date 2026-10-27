@@ -4,7 +4,7 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Caminhos relativos limpos)
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
 const manifest = [
     // CORPUS
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
@@ -19,7 +19,7 @@ const manifest = [
 ];
 
 /**
- * Resolve o caminho relativo do fetch de forma infalível para o GitHub Pages
+ * Resolve o caminho do fetch de forma infalível consoante o contexto atual
  */
 function getFetchUrl(path) {
     const isSubfolder = window.location.pathname.includes('/corpus/') || 
@@ -27,9 +27,14 @@ function getFetchUrl(path) {
                         window.location.pathname.includes('/oficina/') || 
                         window.location.pathname.includes('/sobre/');
     
-    // Remove qualquer barra inicial acidental para evitar conflitos absolutos no servidor
-    const cleanPath = path.replace(/^\/+/, '');
-    return isSubfolder ? '../' + cleanPath : './' + cleanPath;
+    if (isSubfolder) {
+        // Se estamos numa subpasta (ex: /escola/), o md está na pasta irmã 'md/'
+        const filename = path.split('/').pop();
+        return 'md/' + filename;
+    } else {
+        // Se estamos na raiz, usamos o caminho completo (ex: escola/md/...)
+        return path;
+    }
 }
 
 /**
@@ -61,14 +66,14 @@ async function carregarCapaPrincipal() {
     let artigos = [];
 
     for (const relPath of manifest) {
-        const fetchUrl = getFetchUrl(relPath);
+        // Para a capa (raiz), usamos sempre o caminho completo do manifesto
         try {
-            const res = await fetch(fetchUrl);
+            const res = await fetch(relPath);
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
                 
-                const pathParts = relPath.replace(/^\/+/, '').split('/');
+                const pathParts = relPath.split('/');
                 const section = pathParts[0]; 
                 const slug = pathParts[pathParts.length - 1].replace('.md', '');
 
@@ -81,7 +86,7 @@ async function carregarCapaPrincipal() {
                 });
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro ao aceder a ${fetchUrl}:`, e);
+            console.error(`[Scriptorium] Erro ao aceder a ${relPath}:`, e);
         }
     }
 
@@ -197,13 +202,14 @@ async function roteadorSeccao() {
     let encontrados = 0;
 
     for (const relPath of ficheirosSeccao) {
+        // Para listar no índice da secção, usamos o getFetchUrl para respeitar a subpasta
         const fetchUrl = getFetchUrl(relPath);
         try {
             const res = await fetch(fetchUrl);
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
-                const pathParts = relPath.replace(/^\/+/, '').split('/');
+                const pathParts = relPath.split('/');
                 const slug = pathParts[pathParts.length - 1].replace('.md', '');
                 const cat = (parsed.meta.category || 'geral').toLowerCase();
 
