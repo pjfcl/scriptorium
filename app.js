@@ -4,7 +4,7 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Caminhos limpos e uniformes)
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Caminhos relativos limpos)
 const manifest = [
     // CORPUS
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
@@ -19,15 +19,16 @@ const manifest = [
 ];
 
 /**
- * Resolve o caminho relativo do fetch consoante a profundidade atual da página
+ * Resolve o caminho relativo do fetch de forma infalível para o GitHub Pages
  */
 function getFetchUrl(path) {
-    // Remove barra inicial se existir para normalizar
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
     const isSubfolder = window.location.pathname.includes('/corpus/') || 
                         window.location.pathname.includes('/escola/') || 
                         window.location.pathname.includes('/oficina/') || 
                         window.location.pathname.includes('/sobre/');
+    
+    // Remove qualquer barra inicial acidental para evitar conflitos absolutos no servidor
+    const cleanPath = path.replace(/^\/+/, '');
     return isSubfolder ? '../' + cleanPath : './' + cleanPath;
 }
 
@@ -67,7 +68,6 @@ async function carregarCapaPrincipal() {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
                 
-                // Extração robusta da secção (ex: 'corpus', 'escola', 'oficina')
                 const pathParts = relPath.replace(/^\/+/, '').split('/');
                 const section = pathParts[0]; 
                 const slug = pathParts[pathParts.length - 1].replace('.md', '');
@@ -90,10 +90,8 @@ async function carregarCapaPrincipal() {
         return;
     }
 
-    // Ordenação cronológica decrescente por data
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
 
-    // Seleciona o item mais recente por cada secção/categoria principal
     const categoriasVistas = new Set();
     const ultimosPorCategoria = [];
 
@@ -107,7 +105,6 @@ async function carregarCapaPrincipal() {
 
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
-        // Garante que o link aponta rigidamente para a pasta correta da secção
         const linkUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
@@ -183,7 +180,7 @@ async function roteadorSeccao() {
         } catch (e) {
             container.innerHTML = `
                 <div class="w3-padding-24">
-                    <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado na pasta <code>${seccaoAtiva}/md/</code>.</p>
+                    <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado (tentativa em <code>${fetchUrl}</code>).</p>
                     <a href="index.html" class="font-mono w3-small" style="color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Índice</a>
                 </div>
             `;
