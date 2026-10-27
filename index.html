@@ -163,17 +163,7 @@
             margin: 0 0 10px 0;
         }
 
-        .entry-citation {
-            font-family: var(--font-sans);
-            font-size: 0.82rem;
-            color: var(--muted-color);
-            border-left: 2px solid var(--border-color);
-            padding-left: 10px;
-            margin-top: 10px;
-            font-style: italic;
-        }
-
-        /* Menu Lateral Direita (Sidebar) - Links Textuais Conservados */
+        /* Menu Lateral Direita (Sidebar) */
         .wiki-sidebar {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -349,49 +339,17 @@
         <!-- Layout em Duas Colunas (Conteúdo à Esquerda / Menu à Direita) -->
         <div class="w3-row-padding" style="margin-left: -16px; margin-right: -16px;">
             
-            <!-- COLUNA PRINCIPAL (ESQUERDA): ÚLTIMAS ENTRADAS CLICÁVEIS -->
+            <!-- COLUNA PRINCIPAL: GERADA DINAMICAMENTE VIA APP.JS -->
             <article class="w3-col m8 l9">
                 
                 <h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
                     Últimas Entradas no Caderno de Notas
                 </h2>
 
-                <!-- Entrada 1 (Div Inteiro Clicável) -->
-                <a href="corpus/colheitas/20261022-nomada-europeu.html" class="entry-card-link">
-                    <div class="entry-card">
-                        <span class="entry-meta">COLHEITAS • 22 DE OUTUBRO DE 2026</span>
-                        <h3>Agenda para Nómada Europeu de Esquerda</h3>
-                        <p><strong>= Novembro 2026 = Enjoy your trip!</strong></p>
-                        <p style="font-size: 0.92rem; color: var(--muted-color); margin-bottom: 0;">
-                            Apontamentos e reflexões de itinerário sobre o pensamento crítico europeu, mobilidade territorial e o espaço político da margem ocidental.
-                        </p>
-                    </div>
-                </a>
-
-                <!-- Entrada 2 (Div Inteiro Clicável) -->
-                <a href="corpus/sementes/20261017-arte-social.html" class="entry-card-link">
-                    <div class="entry-card">
-                        <span class="entry-meta">SEMENTES • 17 DE OUTUBRO DE 2026</span>
-                        <h3>A Arte é Social</h3>
-                        <p>
-                            A arte até num castelo de marfim é social. Não se pode, numa sociedade, escrever poesia ou prosa, vendo-se livre da sociedade.
-                        </p>
-                        <div class="entry-citation">
-                            — Said Gufarov Gafurov, em <em>“Trotsky e a inteligência artificial.”</em> Traduzido por Adriano Zilhão, Jornal Maio (16 out. 2026).
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Entrada 3 (Div Inteiro Clicável) -->
-                <a href="corpus/colheitas/20261016-problemas-redes-sociais.html" class="entry-card-link">
-                    <div class="entry-card">
-                        <span class="entry-meta">COLHEITAS • 16 DE OUTUBRO DE 2026</span>
-                        <h3>Alguns Problemas das Redes Sociais</h3>
-                        <p style="margin-bottom: 0;">
-                            As redes sociais são reflexo da sociedade actual. Hoje, o meio de produção cultural não se confina aos limites físicos da fábrica mas está diluído geograficamente. Os “operários” fabricam as mensagens, grosso modo, numa ilusão de participação livre e consciente. Contudo esta sua iniciativa está fortemente condicionada...
-                        </p>
-                    </div>
-                </a>
+                <!-- Contentor onde o app.js insere os cartões clicáveis -->
+                <div id="entradas-recentes">
+                    <p class="font-mono w3-small" style="color: var(--muted-color);">A ler as últimas notas do arquivo...</p>
+                </div>
 
             </article>
 
@@ -401,9 +359,9 @@
                     
                     <h3>1. Corpus</h3>
                     <ul class="wiki-sidebar-list">
-                        <li><a href="corpus/sementes/index.html"><strong>As Sementes</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Notas rápidas & citações</span></a></li>
-                        <li><a href="corpus/colheitas/index.html"><strong>A Colheita</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ensaios & leituras críticas</span></a></li>
-                        <li><a href="corpus/tinturas/index.html"><strong>As Tinturas</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ficção & narrativas</span></a></li>
+                        <li><a href="corpus/index.html?cat=sementes"><strong>As Sementes</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Notas rápidas & citações</span></a></li>
+                        <li><a href="corpus/index.html?cat=colheitas"><strong>A Colheita</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ensaios & leituras críticas</span></a></li>
+                        <li><a href="corpus/index.html?cat=tinturas"><strong>As Tinturas</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ficção & narrativas</span></a></li>
                     </ul>
 
                     <h3>2. A Escola</h3>
@@ -488,5 +446,9 @@
 
     </main>
 
+    <!-- INCLUSÃO DOS DEPENDÊNCIAS E DO MOTOR AUTÓNOMO -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml/dist/js-yaml.min.js" defer></script>
+    <script src="app.js" defer></script>
 </body>
 </html>
