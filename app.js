@@ -4,37 +4,26 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Caminhos absolutos a partir da raiz)
 const manifest = [
     // CORPUS
-    'corpus/md/20261022_nomada-europeu-de-esquerda.md',
-    'corpus/md/20261017_arte-e-social.md',
-    'corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
+    '/corpus/md/20261022_nomada-europeu-de-esquerda.md',
+    '/corpus/md/20261017_arte-e-social.md',
+    '/corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
     
     // ESCOLA
-    'escola/md/20261010_caderno-uab-autoetnografia.md',
+    '/escola/md/20261010_caderno-uab-autoetnografia.md',
     
     // OFICINA
-    'oficina/md/20261005_critical-code-studies.md'
+    '/oficina/md/20261005_critical-code-studies.md'
 ];
 
 /**
- * Resolve o caminho do fetch de forma infalível consoante o contexto atual
+ * Retorna sempre o caminho absoluto infalível a partir da raiz do domínio
  */
 function getFetchUrl(path) {
-    const isSubfolder = window.location.pathname.includes('/corpus/') || 
-                        window.location.pathname.includes('/escola/') || 
-                        window.location.pathname.includes('/oficina/') || 
-                        window.location.pathname.includes('/sobre/');
-    
-    if (isSubfolder) {
-        // Se estamos numa subpasta (ex: /escola/), o md está na pasta irmã 'md/'
-        const filename = path.split('/').pop();
-        return 'md/' + filename;
-    } else {
-        // Se estamos na raiz, usamos o caminho completo (ex: escola/md/...)
-        return path;
-    }
+    // Garante que começa sempre com uma única barra /
+    return path.startsWith('/') ? path : '/' + path;
 }
 
 /**
@@ -65,20 +54,20 @@ async function carregarCapaPrincipal() {
 
     let artigos = [];
 
-    for (const relPath of manifest) {
-        // Para a capa (raiz), usamos sempre o caminho completo do manifesto
+    for (const absPath of manifest) {
+        const fetchUrl = getFetchUrl(absPath);
         try {
-            const res = await fetch(relPath);
+            const res = await fetch(fetchUrl);
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
                 
-                const pathParts = relPath.split('/');
+                const pathParts = absPath.replace(/^\/+/, '').split('/');
                 const section = pathParts[0]; 
                 const slug = pathParts[pathParts.length - 1].replace('.md', '');
 
                 artigos.push({
-                    path: relPath,
+                    path: absPath,
                     slug: slug,
                     section: section,
                     meta: parsed.meta,
@@ -86,7 +75,7 @@ async function carregarCapaPrincipal() {
                 });
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro ao aceder a ${relPath}:`, e);
+            console.error(`[Scriptorium] Erro ao aceder a ${fetchUrl}:`, e);
         }
     }
 
@@ -110,7 +99,7 @@ async function carregarCapaPrincipal() {
 
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
-        const linkUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
+        const linkUrl = `/${artigo.section}/index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
         htmlOutput += `
@@ -153,7 +142,7 @@ async function roteadorSeccao() {
     // MODO A: LEITURA DE ARTIGO ESPECÍFICO (?artigo=slug)
     if (artigoSlug) {
         const manifestoMatch = manifest.find(p => p.includes(`${artigoSlug}.md`));
-        const targetPath = manifestoMatch || `${seccaoAtiva}/md/${artigoSlug}.md`;
+        const targetPath = manifestoMatch || `/${seccaoAtiva}/md/${artigoSlug}.md`;
         const fetchUrl = getFetchUrl(targetPath);
 
         try {
@@ -198,18 +187,17 @@ async function roteadorSeccao() {
         ${categoriaFiltro ? 'Categoria: ' + categoriaFiltro.toUpperCase() : 'Índice Geral de ' + seccaoAtiva.toUpperCase()}
     </h2>`;
 
-    const ficheirosSeccao = manifest.filter(p => p.includes(`${seccaoAtiva}/md/`));
+    const ficheirosSeccao = manifest.filter(p => p.startsWith(`/${seccaoAtiva}/md/`));
     let encontrados = 0;
 
-    for (const relPath of ficheirosSeccao) {
-        // Para listar no índice da secção, usamos o getFetchUrl para respeitar a subpasta
-        const fetchUrl = getFetchUrl(relPath);
+    for (const absPath of ficheirosSeccao) {
+        const fetchUrl = getFetchUrl(absPath);
         try {
             const res = await fetch(fetchUrl);
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
-                const pathParts = relPath.split('/');
+                const pathParts = absPath.replace(/^\/+/, '').split('/');
                 const slug = pathParts[pathParts.length - 1].replace('.md', '');
                 const cat = (parsed.meta.category || 'geral').toLowerCase();
 
