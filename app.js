@@ -1,26 +1,8 @@
 /* ==========================================================================
-   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor Universal (app.js)
+   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor Universal com Manifesto JSON (app.js)
    Soberania Digital, Humanidades & Arquitetura Estática
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
-
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Centralizados na pasta /md/)
-const manifest = [
-    // CORPUS
-    'md/corpus/teste.md',
-    
-    // ESCOLA
-    'md/escola/teste.md',
-    
-    // OFICINA
-    'md/oficina/teste.md',
-    
-    // SOBRE
-    'md/sobre/teste.md',
-    
-    // RAIZ
-    'md/teste.md'
-];
 
 /**
  * Parser de YAML Front Matter e Markdown
@@ -42,35 +24,39 @@ function parseMarkdown(text) {
 }
 
 /**
- * Carrega e processa todos os ficheiros do manifesto
+ * Lê o manifest.json e carrega todos os artigos do Scriptorium
  */
 async function carregarTodosArtigos() {
     let artigos = [];
 
-    for (const path of manifest) {
-        try {
-            const res = await fetch(path);
-            if (res.ok) {
-                const rawText = await res.text();
-                const parsed = parseMarkdown(rawText);
-                
-                // Exemplo de path: 'md/escola/20261010_caderno-uab.md'
-                const parts = path.split('/');
-                const section = parts.length > 2 ? parts[1] : 'geral'; // ex: escola, corpus, oficina
-                const filename = parts[parts.length - 1];
-                const slug = filename.replace('.md', '');
+    try {
+        const manifestRes = await fetch('manifest.json');
+        if (!manifestRes.ok) throw new Error("Não foi possível carregar o manifesto.");
+        
+        const manifestData = await manifestRes.json();
+        const entradas = manifestData.artigos || [];
 
-                artigos.push({
-                    path: path,
-                    slug: slug,
-                    section: section,
-                    meta: parsed.meta,
-                    content: parsed.content
-                });
+        for (const item of entradas) {
+            try {
+                const res = await fetch(item.path);
+                if (res.ok) {
+                    const rawText = await res.text();
+                    const parsed = parseMarkdown(rawText);
+
+                    artigos.push({
+                        path: item.path,
+                        slug: item.slug,
+                        section: item.section,
+                        meta: parsed.meta,
+                        content: parsed.content
+                    });
+                }
+            } catch (e) {
+                console.error(`[Scriptorium] Erro ao aceder ao artigo ${item.path}:`, e);
             }
-        } catch (e) {
-            console.error(`[Scriptorium] Erro ao aceder a ${path}:`, e);
         }
+    } catch (e) {
+        console.error("[Scriptorium] Erro ao carregar manifest.json:", e);
     }
 
     // Ordenação cronológica decrescente por data
@@ -86,11 +72,10 @@ async function renderizarCapa(artigos) {
     if (!container) return;
 
     if (artigos.length === 0) {
-        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum ficheiro Markdown encontrado no manifesto.</p>`;
+        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum registo encontrado no Scriptorium.</p>`;
         return;
     }
 
-    // Seleciona as entradas mais recentes
     let htmlOutput = '';
     artigos.slice(0, 5).forEach(artigo => {
         const linkUrl = `index.html?artigo=${artigo.slug}`;
@@ -125,7 +110,6 @@ async function router() {
 
     if (!viewHome || !viewContent) return;
 
-    // Carrega todos os artigos do manifesto uma única vez
     const artigos = await carregarTodosArtigos();
 
     // CASO A: LEITURA DE UM ARTIGO ESPECÍFICO (?artigo=slug)
