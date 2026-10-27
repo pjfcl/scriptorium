@@ -3,452 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <title>Scriptorium Digital — Reflexões, Ficção & Humanidades | Paulo Lopes</title>
-
-    <!-- Framework W3.CSS -->
+    <title>Scriptorium Digital • Paulo Furtado Lopes</title>
+    
+    <!-- W3.CSS Framework -->
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    
+    <!-- Google Fonts: Inter (Sans), Cardo (Serif) & Fira Code (Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Dependências Externas para o Motor (YAML e Marked) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.js"></script>
 
     <style>
-        /* --- Paleta Soberana & Tipografia --- */
         :root {
-            --bg-color: #fcfbf9;          /* Papel de arquivo / Marfim */
-            --text-color: #0f1e2d;        /* Azul-marinho profundo */
-            --accent-color: #8c2d19;      /* Vermelho óxido / Sanguínea */
-            --muted-color: #5c6b73;       /* Azul pedra / Grafite */
-            --border-color: #d8d3cd;      /* Linha de divisão subtil */
-            --card-bg: #ffffff;           /* Branco puro para leitura */
-            
-            --font-serif: "Cardo", "Georgia", "Times New Roman", serif;
-            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+            --bg-color: #fcfcfc;
+            --text-color: #1a1a1a;
+            --muted-color: #666666;
+            --border-color: #e0e0e0;
+            --accent-color: #8b2626; /* Tom terracota / académico */
+            --card-bg: #ffffff;
         }
 
         body {
-            background-color: var(--bg-color) !important;
-            color: var(--text-color) !important;
-            font-family: var(--font-serif);
-            line-height: 1.8;
-            font-size: 1.05rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
             margin: 0;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+            padding: 0;
         }
 
-        .font-sans { font-family: var(--font-sans) !important; }
-        .font-mono { font-family: var(--font-mono) !important; }
+        .font-serif { font-family: 'Cardo', serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .font-sans { font-family: 'Inter', sans-serif; }
 
-        /* Navegação Breadcrumb Superior */
-        .breadcrumb {
-            font-family: var(--font-sans);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .scriptorium-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header.scriptorium-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .site-title {
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 25px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-color);
+            text-decoration: none;
         }
 
-        .breadcrumb a {
+        .site-nav a {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
             color: var(--muted-color);
             text-decoration: none;
-            transition: color 0.2s ease;
+            margin-left: 15px;
+            transition: color 0.2s;
         }
 
-        .breadcrumb a:hover {
+        .site-nav a:hover, .site-nav a.active {
             color: var(--accent-color);
         }
 
-        .breadcrumb span {
-            color: var(--accent-color);
+        .hero-section {
+            margin-bottom: 40px;
         }
 
-        /* Cabeçalho do Scriptorium */
-        header.wiki-header {
-            border-bottom: 2px solid var(--text-color);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        header.wiki-header h1 {
-            font-family: var(--font-sans);
-            font-size: 2.2rem;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin: 0 0 6px 0;
+        .hero-section h1 {
+            font-family: 'Cardo', serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
             color: var(--text-color);
         }
 
-        .header-sub {
-            font-family: var(--font-sans);
+        .hero-subtitle {
+            font-family: 'Fira Code', monospace;
             font-size: 0.9rem;
-            letter-spacing: 1.5px;
             color: var(--accent-color);
-            font-weight: 600;
-            text-transform: uppercase;
-            margin: 0;
-        }
-
-        /* Barra de Alerta / Boas-vindas */
-        .warning-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-color);
-            padding: 22px 24px;
-            margin-bottom: 35px;
-        }
-
-        .warning-box h2 {
-            font-family: var(--font-sans);
-            font-size: 1.1rem;
-            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--accent-color);
-            margin-top: 0;
-            margin-bottom: 8px;
-        }
-
-        /* Cartões de Entradas Recentes 100% Clicáveis */
-        a.entry-card-link {
-            text-decoration: none !important;
-            color: inherit !important;
-            display: block;
             margin-bottom: 20px;
         }
 
+        .manifesto-box {
+            font-family: 'Cardo', serif;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            border-left: 3px solid var(--accent-color);
+            padding-left: 20px;
+            margin: 25px 0;
+            background: rgba(139, 38, 38, 0.02);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .section-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-top: 50px;
+            margin-bottom: 25px;
+        }
+
+        .entry-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            margin-bottom: 24px;
+        }
+
         .entry-card {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-left: 3px solid var(--text-color);
-            padding: 20px 22px;
-            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
+            padding: 24px;
+            transition: border-color 0.2s;
         }
 
-        a.entry-card-link:hover .entry-card {
-            border-left-color: var(--accent-color);
-            border-color: var(--border-color);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(15, 30, 45, 0.06);
-        }
-
-        a.entry-card-link:hover .entry-card h3 {
-            color: var(--accent-color);
+        .entry-card:hover {
+            border-color: var(--text-color);
         }
 
         .entry-meta {
-            font-family: var(--font-mono);
-            font-size: 0.78rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
             color: var(--accent-color);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            letter-spacing: 1px;
             display: block;
-        }
-
-        .entry-card h3 {
-            font-family: var(--font-serif);
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin: 0 0 10px 0;
-            color: var(--text-color);
-            transition: color 0.2s ease;
-        }
-
-        .entry-card p {
-            font-size: 0.98rem;
-            color: var(--text-color);
-            margin: 0 0 10px 0;
-        }
-
-        /* Menu Lateral Direita (Sidebar) */
-        .wiki-sidebar {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 22px;
-            margin-bottom: 30px;
-        }
-
-        .wiki-sidebar h3 {
-            font-family: var(--font-sans);
-            font-size: 0.88rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--accent-color);
-            margin-top: 0;
-            margin-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
-        }
-
-        .wiki-sidebar-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 20px 0;
-            font-family: var(--font-sans);
-            font-size: 0.92rem;
-        }
-
-        .wiki-sidebar-list li {
             margin-bottom: 8px;
         }
 
-        .wiki-sidebar-list a {
+        .entry-card h3 {
+            font-family: 'Cardo', serif;
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
             color: var(--text-color);
-            text-decoration: none;
-            transition: color 0.2s ease;
+            font-weight: 700;
         }
 
-        .wiki-sidebar-list a:hover {
-            color: var(--accent-color);
+        .entry-card p {
+            color: var(--muted-color);
+            font-size: 0.95rem;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Bloco Destacado: Gastronomia */
-        .gastro-callout {
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-top: 3px solid var(--accent-color);
-            padding: 20px;
+        .navigation-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
             margin-top: 30px;
-            text-align: center;
         }
 
-        .gastro-callout p {
-            font-family: var(--font-serif);
-            font-size: 1.02rem;
-            font-style: italic;
-            color: var(--text-color);
-            margin: 8px 0 12px 0;
-        }
-
-        .gastro-link {
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--accent-color);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .gastro-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Botão Minimalista de Donativos */
-        .btn-donativos {
-            display: inline-block;
-            background-color: var(--text-color);
-            color: #ffffff !important;
-            font-family: var(--font-sans);
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            padding: 10px 20px;
-            text-decoration: none;
-            border: 1px solid var(--text-color);
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
-
-        .btn-donativos:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        /* Estilização Estruturada das Caixas do Rodapé */
-        .footer-boxes-container {
-            border: 1px solid var(--border-color);
-            background-color: var(--card-bg);
-            margin-bottom: 35px;
-        }
-
-        .footer-box-left {
-            padding: 24px;
-        }
-
-        .footer-box-right {
-            padding: 24px;
-            border-left: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 600px) {
-            .footer-box-right {
-                border-left: none;
-                border-top: 1px solid var(--border-color);
+        @media (min-width: 600px) {
+            .navigation-grid {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
-        /* Rodapé Institucional */
-        .site-footer {
-            margin-top: 4rem;
-            border-top: 1px solid var(--border-color);
-            padding-top: 2.5rem;
-            padding-bottom: 2rem;
-            font-family: var(--font-sans);
-            font-size: 0.85rem;
-            color: var(--muted-color);
-            text-align: center;
+        .nav-block {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            background: var(--card-bg);
         }
 
-        .footer-links {
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-        }
-
-        .footer-links a {
-            color: var(--accent-color);
-            text-decoration: none;
+        .nav-block h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
             font-weight: 600;
+            margin: 0 0 10px 0;
         }
 
-        .footer-links a:hover {
+        .nav-block h4 a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .nav-block h4 a:hover {
+            color: var(--accent-color);
+        }
+
+        .nav-block ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: var(--muted-color);
+        }
+
+        .nav-block li {
+            margin-bottom: 5px;
+        }
+
+        .nav-block a {
+            color: var(--muted-color);
+            text-decoration: none;
+        }
+
+        .nav-block a:hover {
+            color: var(--text-color);
             text-decoration: underline;
+        }
+
+        .quote-box {
+            font-family: 'Cardo', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-color);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin: 50px 0;
+        }
+
+        footer.scriptorium-footer {
+            margin-top: 60px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--muted-color);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        footer.scriptorium-footer a {
+            color: var(--text-color);
+            text-decoration: none;
         }
     </style>
 </head>
-<body class="w3-padding-large">
+<body>
 
-    <main class="w3-content w3-padding-24" style="max-width: 1100px;">
+    <div class="scriptorium-container">
         
-        <!-- Breadcrumb Superior -->
-        <nav class="breadcrumb">
-            <a href="https://paulolopes.org">paulolopes.org</a> / <span>scriptorium digital</span>
-        </nav>
-
-        <!-- Cabeçalho Principal -->
-        <header class="wiki-header">
-            <h1>Scriptorium Digital</h1>
-            <p class="header-sub">Reflexões, Ficção & Outras Narrativas</p>
+        <!-- CABEÇALHO -->
+        <header class="scriptorium-header">
+            <a href="index.html" class="site-title font-mono">Scriptorium Digital</a>
+            <nav class="site-nav">
+                <a href="index.html?seccao=corpus">Corpus</a>
+                <a href="index.html?seccao=escola">Escola</a>
+                <a href="index.html?seccao=oficina">Oficina</a>
+                <a href="index.html?seccao=sobre">Sobre</a>
+                <a href="https://paulolopes.org">&larr; Paulolopes.org</a>
+            </nav>
         </header>
 
-        <!-- Mensagem de Enquadramento / Boas-vindas -->
-        <section class="warning-box">
-            <h2>Cuidado! Oficina de Resistência em Ação</h2>
-            <p style="margin: 0;" align="justify">
-                Não estás a entrar num museu asséptico, mas sim numa oficina de resistência. Este é um jardim digital cultivado para consulta e destilação de ideias, fora do fluxo das redes sociais e da interacção imediata. Isento dos estímulos acelerados da sociedade contemporânea, este portal reúne apontamentos, teoria e outros escritos que exploram a cultura, o pensamento e a expressão humana. Sê bem-vindo!
-            </p>
-        </section>
-
-        <!-- Layout em Duas Colunas (Conteúdo à Esquerda / Menu à Direita) -->
-        <div class="w3-row-padding" style="margin-left: -16px; margin-right: -16px;">
+        <!-- SECÇÃO PRINCIPAL / DINÂMICA -->
+        <main id="app-main">
             
-            <!-- COLUNA PRINCIPAL: GERADA DINAMICAMENTE VIA APP.JS -->
-            <article class="w3-col m8 l9">
-                
-                <h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-                    Últimas Entradas no Caderno de Notas
-                </h2>
-
-                <!-- Contentor onde o app.js insere os cartões clicáveis -->
-                <div id="entradas-recentes">
-                    <p class="font-mono w3-small" style="color: var(--muted-color);">A ler as últimas notas do arquivo...</p>
-                </div>
-
-            </article>
-
-            <!-- COLUNA SECUNDÁRIA (DIREITA): NAVEGAÇÃO TEXTUAL CONSERVADA -->
-            <aside class="w3-col m4 l3">
-                <div class="wiki-sidebar">
+            <!-- VISTA DE CAPA (HOME) -->
+            <div id="view-home">
+                <section class="hero-section">
+                    <p class="hero-subtitle">Paulolopes.org / Scriptorium Digital</p>
+                    <h1>Reflexões, Ficção & Outras Narrativas</h1>
                     
-                    <h3>1. Corpus</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="corpus/index.html?cat=sementes"><strong>As Sementes</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Notas rápidas & citações</span></a></li>
-                        <li><a href="corpus/index.html?cat=colheitas"><strong>A Colheita</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ensaios & leituras críticas</span></a></li>
-                        <li><a href="corpus/index.html?cat=tinturas"><strong>As Tinturas</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Ficção & narrativas</span></a></li>
-                    </ul>
+                    <div class="manifesto-box">
+                        <strong>Cuidado! Oficina de Resistência em Ação</strong><br>
+                        Não estás a entrar num museu asséptico, mas sim numa oficina de resistência. Este é um jardim digital cultivado para consulta e destilação de ideias, fora do fluxo das redes sociais e da interacção imediata. Isento dos estímulos acelerados da sociedade contemporânea, este portal reúne apontamentos, teoria e outros escritos que exploram a cultura, o pensamento e a expressão humana. Sê bem-vindo!
+                    </div>
+                </section>
 
-                    <h3>2. A Escola</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="escola/index.html"><strong>Cadernos da UAb</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Investigação & Humanidades</span></a></li>
-                    </ul>
-
-                    <h3>3. A Oficina</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="oficina/index.html"><strong>Humanidades Digitais</strong> <br><span class="w3-tiny" style="color: var(--muted-color);">Código, Scheme & Critical Code Studies</span></a></li>
-                    </ul>
-
-                    <h3>4. Sobre</h3>
-                    <ul class="wiki-sidebar-list">
-                        <li><a href="sobre/index.html"><strong>Manifesto & Protocolo P.A.R.T.E.</strong></a></li>
-                        <li><a href="https://paulolopes.org"><strong>O Artífice (Autor)</strong></a></li>
-                    </ul>
-
+                <!-- CONTEÚDO DINÂMICO INSERIDO PELA APP.JS -->
+                <div class="section-title">Últimas Entradas no Caderno de Notas</div>
+                <div id="entradas-recentes">
+                    <p class="font-mono w3-small" style="color: var(--muted-color);">A carregar registos do Scriptorium...</p>
                 </div>
 
-                <!-- Bloco de Investigação Gastronómica -->
-                <div class="gastro-callout">
-                    <span class="font-mono w3-tiny w3-uppercase" style="color: var(--accent-color); letter-spacing: 1px;">Investigação Gastronómica</span>
-                    <p>
-                        "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
-                    </p>
-                    <a href="https://gastronomia.paulolopes.org" class="gastro-link">Gastronomia &rarr;</a>
-                </div>
-            </aside>
-
-        </div>
-
-        <!-- RODAPÉ INSTITUCIONAL -->
-        <footer class="site-footer">
-            
-            <div class="footer-boxes-container w3-row w3-text-left">
-                
-                <div class="w3-col m8 l8 footer-box-left">
-                    <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); margin-top: 0; margin-bottom: 10px;">
-                        Como Navegar Neste Espaço
-                    </h4>
-                    <p style="font-size: 0.9rem; color: var(--text-color); margin: 0; line-height: 1.7; text-align: justify;">
-                        O que aqui encontras é o resultado de uma imersão em textos, imagens e sons; em ideias e conceitos; em símbolos. Ao criar este arquivo de notas interligadas, estabeleço um método para organizar o conhecimento obtido nessa viagem — dividindo as notas entre <strong>Sementes</strong> (fragmentos e citações), <strong>Colheitas</strong> (ensaios desenvolvidos) e <strong>Tinturas</strong> (ficção e narrativas experimentais), articuladas com os cadernos de estudo da <strong>Escola</strong> e as ferramentas da <strong>Oficina</strong>.
-                    </p>
-                </div>
-
-                <div class="w3-col m4 l4 footer-box-right">
-                    <h4 class="font-sans" style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-color); margin-top: 0; margin-bottom: 10px;">
-                        Apoiar a Oficina
-                    </h4>
-                    <p style="font-size: 0.85rem; color: var(--muted-color); margin: 0 0 14px 0; line-height: 1.5; text-align: justify;">
-                        Este arquivo livre de publicidade e rastreadores subsiste com o apoio independente da comunidade.
-                    </p>
-                    <div class="w3-center">
-                        <a href="https://paypal.me/PauloFurtadoLopes" target="_blank" rel="noopener" class="btn-donativos">
-                            Donativos via PayPal
-                        </a>
+                <!-- ÍNDICE DE NAVEGAÇÃO -->
+                <div class="section-title">Estrutura do Scriptorium</div>
+                <div class="navigation-grid">
+                    <div class="nav-block">
+                        <h4><a href="index.html?seccao=corpus">1. Corpus</a></h4>
+                        <ul>
+                            <li><a href="index.html?seccao=corpus&cat=semente">As Sementes</a> (Notas rápidas & citações)</li>
+                            <li><a href="index.html?seccao=corpus&cat=colheita">A Colheita</a> (Ensaios & leituras)</li>
+                            <li><a href="index.html?seccao=corpus&cat=tintura">As Tinturas</a> (Ficção & narrativas)</li>
+                        </ul>
+                    </div>
+                    <div class="nav-block">
+                        <h4><a href="index.html?seccao=escola">2. A Escola</a></h4>
+                        <ul>
+                            <li><a href="index.html?seccao=escola">Cadernos da UAb</a> (Investigação & Humanidades)</li>
+                        </ul>
+                    </div>
+                    <div class="nav-block">
+                        <h4><a href="index.html?seccao=oficina">3. A Oficina</a></h4>
+                        <ul>
+                            <li><a href="index.html?seccao=oficina">Humanidades Digitais</a> (Código, Scheme & Critical Code Studies)</li>
+                        </ul>
+                    </div>
+                    <div class="nav-block">
+                        <h4><a href="index.html?seccao=sobre">4. Sobre</a></h4>
+                        <ul>
+                            <li><a href="index.html?seccao=sobre">Manifesto & Protocolo P.A.R.T.E.</a></li>
+                            <li><a href="index.html?seccao=sobre">O Artífice & Investigação</a></li>
+                        </ul>
                     </div>
                 </div>
 
+                <div class="quote-box">
+                    "Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."
+                </div>
             </div>
 
-            <p style="font-style: italic; font-family: var(--font-serif); margin-bottom: 0.8rem; color: var(--muted-color);">
-                "Enquanto a mão corta, a mente destila."
-            </p>
-            
-            <div class="footer-links">
-                <a href="https://paulolopes.org">Início</a> &mdash; 
-                <a href="https://paulolopes.org/artefactos/">Artefactos</a> &mdash; 
-                <a href="https://costa.paulolopes.org">Casa da Costa</a> &mdash; 
-                <a href="https://gastronomia.paulolopes.org">Gastronomia</a> &mdash; 
-                <a href="https://glossario.paulolopes.org">Glossário</a>
+            <!-- VISTA DE SECÇÃO / ARTIGO (GERIDA PELA APP.JS) -->
+            <div id="view-content" style="display: none;">
+                <div class="breadcrumb font-mono w3-small" id="breadcrumb" style="margin-bottom: 20px; color: var(--muted-color);">
+                    <a href="index.html" style="color: var::accent-color; text-decoration: none;">Início</a> / <span id="breadcrumb-current">Secção</span>
+                </div>
+                <div id="dynamic-container">
+                    <!-- O conteúdo renderizado via JavaScript entra aqui -->
+                </div>
             </div>
-            
-            <p class="font-mono w3-tiny w3-uppercase w3-wide" style="letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--muted-color);">
-                SCRIPTORIUM DIGITAL • PAULO FURTADO LOPES • ENCODING: UTF-8
-            </p>
-            <p class="font-mono w3-tiny" style="color: var(--muted-color); margin: 0;">
-                Contacto: <a href="mailto:mail@paulolopes.org" style="color: inherit;">mail@paulolopes.org</a>
-            </p>
+
+        </main>
+
+        <!-- RODAPÉ -->
+        <footer class="scriptorium-footer">
+            <span>Paulo Jorge Furtado Cardoso Lopes • SCRIPTORIUM DIGITAL</span>
+            <span><a href="https://paulolopes.org">paulolopes.org</a></span>
         </footer>
 
-    </main>
+    </div>
 
-    <!-- INCLUSÃO DOS DEPENDÊNCIAS E DO MOTOR AUTÓNOMO -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-yaml/dist/js-yaml.min.js" defer></script>
-    <script src="app.js" defer></script>
+    <!-- MOTOR SPA (app.js) -->
+    <script src="app.js"></script>
 </body>
 </html>
