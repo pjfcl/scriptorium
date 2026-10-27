@@ -62,7 +62,7 @@ async function renderizarCapa(artigos) {
     if (!container) return;
 
     if (artigos.length === 0) {
-        container.innerHTML = `<p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">Nenhum registo encontrado no Scriptorium.</p>`;
+        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum registo encontrado no Scriptorium.</p>`;
         return;
     }
 
@@ -93,20 +93,18 @@ async function router() {
     const viewHome = document.getElementById('view-home');
     const viewContent = document.getElementById('view-content');
     const dynamicContainer = document.getElementById('dynamic-container');
-    const breadcrumbCurrent = document.getElementById('breadcrumb-current');
 
     if (!viewHome || !viewContent) return;
 
     const artigos = await carregarTodosArtigos();
 
+    // LEITURA DE ARTIGO INDIVIDUAL (?artigo=slug)
     if (artigoParam) {
         viewHome.style.display = 'none';
         viewContent.style.display = 'block';
 
         const artigo = artigos.find(a => a.slug === artigoParam);
         if (artigo) {
-            if (breadcrumbCurrent) breadcrumbCurrent.textContent = artigo.meta.title || artigo.slug;
-            
             dynamicContainer.innerHTML = `
                 <article>
                     <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${artigo.meta.date || ''}</span>
@@ -132,11 +130,10 @@ async function router() {
         return;
     }
 
+    // LISTAGEM DE SECÇÃO (?seccao=nome)
     if (seccaoParam) {
         viewHome.style.display = 'none';
         viewContent.style.display = 'block';
-
-        if (breadcrumbCurrent) breadcrumbCurrent.textContent = seccaoParam.toUpperCase();
 
         const filtrados = artigos.filter(a => a.section.toLowerCase() === seccaoParam.toLowerCase());
         
@@ -172,6 +169,7 @@ async function router() {
         return;
     }
 
+    // VISTA DE CAPA PADRÃO
     viewHome.style.display = 'block';
     viewContent.style.display = 'none';
     await renderizarCapa(artigos);
