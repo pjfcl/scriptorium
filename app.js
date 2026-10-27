@@ -5,7 +5,7 @@
    ========================================================================== */
 
 // 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
-// Caminhos relativos à raiz do Scriptorium Digital
+// Caminhos universais a partir da raiz de scriptoriumdigital.org
 const manifest = [
     // CORPUS (Sementes, Colheitas, Tinturas)
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
@@ -20,14 +20,13 @@ const manifest = [
 ];
 
 /**
- * Calculador de caminho relativo consoante a profundidade
+ * Normaliza caminhos de ficheiro para garantir que o fetch encontra a raiz
  */
-function getBasePath() {
-    const path = window.location.pathname;
-    if (path.includes('/corpus/') || path.includes('/escola/') || path.includes('/oficina/') || path.includes('/sobre/')) {
-        return '../';
-    }
-    return './';
+function resolveUrl(path) {
+    // Se a página atual está dentro de uma subpasta (ex: /corpus/), recua um nível.
+    const pathname = window.location.pathname;
+    const isSubfolder = pathname.includes('/corpus/') || pathname.includes('/escola/') || pathname.includes('/oficina/') || pathname.includes('/sobre/');
+    return isSubfolder ? '../' + path : './' + path;
 }
 
 /**
@@ -43,7 +42,7 @@ function parseMarkdown(text) {
                 content: match[2]
             };
         } catch (e) {
-            console.error("[Scriptorium] Erro ao interpretar YAML:", e);
+            console.error("[Scriptorium] Erro YAML:", e);
         }
     }
     return { meta: {}, content: text };
@@ -56,12 +55,11 @@ async function carregarCapaPrincipal() {
     const container = document.getElementById('entradas-recentes');
     if (!container) return;
 
-    const base = getBasePath();
     let artigos = [];
 
     for (const relPath of manifest) {
         try {
-            const fetchUrl = base + relPath;
+            const fetchUrl = resolveUrl(relPath);
             const res = await fetch(fetchUrl);
             
             if (res.ok) {
@@ -77,10 +75,10 @@ async function carregarCapaPrincipal() {
                     content: parsed.content
                 });
             } else {
-                console.warn(`[Scriptorium] Erro 404 ao tentar carregar: ${fetchUrl}`);
+                console.warn(`[Scriptorium] HTTP ${res.status} ao carregar: ${fetchUrl}`);
             }
         } catch (e) {
-            console.error(`[Scriptorium] Falha de rede/CORS: ${relPath}`, e);
+            console.error(`[Scriptorium] Erro ao carregar ${relPath}:`, e);
         }
     }
 
@@ -88,20 +86,19 @@ async function carregarCapaPrincipal() {
         container.innerHTML = `
             <div class="w3-padding-16">
                 <p class="font-mono w3-small" style="color: var(--accent-color);">
-                    Nenhum ficheiro Markdown foi carregado do arquivo.
+                    Nenhum ficheiro Markdown foi carregado.
                 </p>
                 <p class="font-mono w3-tiny" style="color: var(--muted-color);">
-                    Confirma se a pasta <code>corpus/md/</code> no servidor contém exatamente o ficheiro <code>20261022_nomada-europeu-de-esquerda.md</code> (em minúsculas).
+                    Confirma se no GitHub/Servidor o ficheiro se chama exatamente:<br>
+                    <code>corpus/md/20261022_nomada-europeu-de-esquerda.md</code> (atenção a maiúsculas na pasta).
                 </p>
             </div>
         `;
         return;
     }
 
-    // Ordenação cronológica decrescente
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
 
-    // Filtragem: 1 artigo mais recente por categoria
     const categoriasVistas = new Set();
     const ultimosPorCategoria = [];
 
@@ -113,7 +110,6 @@ async function carregarCapaPrincipal() {
         }
     }
 
-    // Geração dos cartões clicáveis
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
         const targetUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
@@ -134,7 +130,7 @@ async function carregarCapaPrincipal() {
 }
 
 /* ==========================================================================
-   3. ROTEADOR DE SECÇÕES
+   3. ROTEADOR DE SECÇÕES (Corpus, Escola, Oficina, Sobre)
    ========================================================================== */
 async function roteadorSeccao() {
     const seccoes = ['corpus', 'escola', 'oficina', 'sobre'];
@@ -152,12 +148,11 @@ async function roteadorSeccao() {
 
     if (!container) return;
 
-    const base = getBasePath();
     const urlParams = new URLSearchParams(window.location.search);
     const artigoSlug = urlParams.get('artigo');
     const categoriaFiltro = urlParams.get('cat');
 
-    // MODO A: LEITURA INTEGRAL (?artigo=slug)
+    // MODO A: LEITURA INTEGRAL DE ARTIGO (?artigo=slug)
     if (artigoSlug) {
         try {
             const fetchUrl = `./md/${artigoSlug}.md`;
@@ -190,7 +185,7 @@ async function roteadorSeccao() {
         } catch (e) {
             container.innerHTML = `
                 <div class="w3-padding-24">
-                    <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado na pasta <code>${seccaoAtiva}/md/</code>.</p>
+                    <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado em <code>${seccaoAtiva}/md/</code>.</p>
                     <a href="index.html" class="font-mono w3-small" style="color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Índice</a>
                 </div>
             `;
@@ -208,7 +203,7 @@ async function roteadorSeccao() {
 
     for (const relPath of ficheirosSeccao) {
         try {
-            const fetchUrl = base + relPath;
+            const fetchUrl = resolveUrl(relPath);
             const res = await fetch(fetchUrl);
             if (res.ok) {
                 const rawText = await res.text();
@@ -234,17 +229,4 @@ async function roteadorSeccao() {
         }
     }
 
-    if (encontrados === 0) {
-        htmlOutput += `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhuma entrada encontrada para este filtro em ${seccaoAtiva}.</p>`;
-    }
-
-    container.innerHTML = htmlOutput;
-}
-
-/* ==========================================================================
-   4. INICIALIZAÇÃO AUTOMÁTICA
-   ========================================================================== */
-document.addEventListener('DOMContentLoaded', () => {
-    carregarCapaPrincipal();
-    roteadorSeccao();
-});
+    if (en
