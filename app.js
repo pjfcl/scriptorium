@@ -4,9 +4,9 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Pastas estritamente em minúsculas)
 const manifest = [
-    // CORPUS (Sementes, Colheitas, Tinturas)
+    // CORPUS (Categoria correta: colheita, Tipo: ensaio)
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
     'corpus/md/20261017_arte-e-social.md',
     'corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
@@ -19,7 +19,7 @@ const manifest = [
 ];
 
 /**
- * Normaliza os caminhos de fetch para que funcionem tanto no subdomínio como em subpastas
+ * Resolve o caminho relativo do fetch consoante a profundidade da página
  */
 function getFetchUrl(path) {
     const isSubfolder = window.location.pathname.includes('/corpus/') || 
@@ -42,25 +42,25 @@ function parseMarkdown(text) {
                 content: match[2]
             };
         } catch (e) {
-            console.error("[Scriptorium] Erro YAML:", e);
+            console.error("[Scriptorium] Erro a processar YAML:", e);
         }
     }
     return { meta: {}, content: text };
 }
 
 /* ==========================================================================
-   2. MOTOR DA CAPA PRINCIPAL (index.html)
+   2. MOTOR DA CAPA PRINCIPAL (index.html na Raiz)
    ========================================================================== */
 async function carregarCapaPrincipal() {
     const container = document.getElementById('entradas-recentes');
-    if (!container) return;
+    if (!container) return; // Se não estiver na capa, sai
 
     let artigos = [];
 
     for (const relPath of manifest) {
-        const targetUrl = getFetchUrl(relPath);
+        const fetchUrl = getFetchUrl(relPath);
         try {
-            const res = await fetch(targetUrl);
+            const res = await fetch(fetchUrl);
             
             if (res.ok) {
                 const rawText = await res.text();
@@ -74,32 +74,34 @@ async function carregarCapaPrincipal() {
                     meta: parsed.meta,
                     content: parsed.content
                 });
+                console.log(`[Scriptorium] Carregado com sucesso: ${fetchUrl}`);
             } else {
-                console.warn(`[Scriptorium] HTTP ${res.status} ao aceder a: ${targetUrl}`);
+                console.warn(`[Scriptorium] Aviso: Ficheiro não encontrado (HTTP ${res.status}) em ${fetchUrl}`);
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro ao carregar ${targetUrl}:`, e);
+            console.error(`[Scriptorium] Erro de rede ao aceder a ${fetchUrl}:`, e);
         }
     }
 
+    // Se nenhum artigo foi carregado após verificar o manifesto todo
     if (artigos.length === 0) {
         container.innerHTML = `
-            <div class="w3-padding-16">
-                <p class="font-mono w3-small" style="color: var(--accent-color);">
-                    Nenhum ficheiro Markdown foi carregado do arquivo.
+            <div class="w3-padding-16" style="border-left: 3px solid var(--accent-color); padding-left: 15px;">
+                <p class="font-mono w3-small" style="color: var(--accent-color); font-weight: bold; margin-bottom: 5px;">
+                    Aviso do Motor: Nenhum ficheiro .md respondido pelo servidor.
                 </p>
-                <p class="font-mono w3-tiny" style="color: var(--muted-color);">
-                    Abre a consola do navegador (F12 -> Console) para ver o código de erro retornado pelo servidor.
+                <p class="font-mono w3-tiny" style="color: var(--muted-color); margin: 0;">
+                    Prime <strong>F12</strong> no teclado, vai ao separador <strong>Console</strong> e vê qual o URL exato que devolveu erro 404.
                 </p>
             </div>
         `;
         return;
     }
 
-    // Ordenação cronológica decrescente
+    // Ordenação cronológica decrescente (mais recente primeiro)
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
 
-    // Filtragem: 1 artigo mais recente por categoria
+    // Filtragem: Apenas 1 artigo mais recente por categoria
     const categoriasVistas = new Set();
     const ultimosPorCategoria = [];
 
@@ -111,7 +113,7 @@ async function carregarCapaPrincipal() {
         }
     }
 
-    // Geração dos cartões clicáveis
+    // Construção visual dos cartões 100% clicáveis
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
         const linkUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
@@ -187,7 +189,7 @@ async function roteadorSeccao() {
         } catch (e) {
             container.innerHTML = `
                 <div class="w3-padding-24">
-                    <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado em <code>${seccaoAtiva}/md/</code>.</p>
+                    <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado na pasta <code>${seccaoAtiva}/md/</code>.</p>
                     <a href="index.html" class="font-mono w3-small" style="color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Índice</a>
                 </div>
             `;
@@ -195,7 +197,7 @@ async function roteadorSeccao() {
         return;
     }
 
-    // MODO B: LISTAGEM E FILTRAGEM
+    // MODO B: LISTAGEM E FILTRAGEM DE ENTRADAS
     let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
         ${categoriaFiltro ? 'Categoria: ' + categoriaFiltro.toUpperCase() : 'Índice Geral de ' + seccaoAtiva.toUpperCase()}
     </h2>`;
@@ -227,7 +229,7 @@ async function roteadorSeccao() {
                 }
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro em ${seccaoAtiva}:`, relPath, e);
+            console.error(`[Scriptorium] Erro a listar ${seccaoAtiva}:`, relPath, e);
         }
     }
 
@@ -245,3 +247,4 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarCapaPrincipal();
     roteadorSeccao();
 });
+
