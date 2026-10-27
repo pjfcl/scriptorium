@@ -1,36 +1,23 @@
 /* ==========================================================================
    PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor Universal (app.js)
-   Soberania Digital, Humanidades Digitais & Arquitetura Estática
+   Soberania Digital, Humanidades & Arquitetura Estática
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
 // 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
-// Convenção estrita de nomenclatura: YYYYMMDD_slug.md
+// Nota a barra inicial '/' que garante o caminho a partir da raiz do servidor:
 const manifest = [
     // CORPUS
-    'corpus/md/20261022_nomada-europeu-de-esquerda.md',
-    'corpus/md/20261017_arte-e-social.md',
-    'corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
+    '/corpus/md/20261022_nomada-europeu-de-esquerda.md',
+    '/corpus/md/20261017_arte-e-social.md',
+    '/corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
     
     // ESCOLA
-    'escola/md/20261010_caderno-uab-autoetnografia.md',
+    '/escola/md/20261010_caderno-uab-autoetnografia.md',
     
     // OFICINA
-    'oficina/md/20261005_critical-code-studies.md'
+    '/oficina/md/20261005_critical-code-studies.md'
 ];
-
-/**
- * Função Auxiliar: Resolve o caminho relativo correto independentemente de onde a página está.
- * Se estiver na raiz, usa './'. Se estiver numa subpasta (/corpus/, /escola/, etc.), recua com '../'.
- */
-function getRelativePrefix() {
-    const path = window.location.pathname;
-    // Se o caminho contiver uma subpasta da estrutura, recua um nível
-    if (path.includes('/corpus/') || path.includes('/escola/') || path.includes('/oficina/') || path.includes('/sobre/')) {
-        return '../';
-    }
-    return './';
-}
 
 /**
  * Parser de YAML Front Matter e Markdown
@@ -56,27 +43,30 @@ function parseMarkdown(text) {
    ========================================================================== */
 async function carregarCapaPrincipal() {
     const container = document.getElementById('entradas-recentes');
-    if (!container) return; // Ignora se não estiver na página inicial
+    if (!container) return; // Ignora se não estiver na capa
 
-    const prefix = getRelativePrefix();
     let artigos = [];
 
     for (const relPath of manifest) {
         try {
-            const fetchUrl = prefix + relPath;
-            const res = await fetch(fetchUrl);
+            const res = await fetch(relPath);
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
+                
+                // Extrai a secção limpa (ex: 'corpus', 'escola', 'oficina')
+                const cleanPath = relPath.startsWith('/') ? relPath.substring(1) : relPath;
+                const pathParts = cleanPath.split('/');
+
                 artigos.push({
-                    path: relPath,
-                    slug: relPath.split('/').pop().replace('.md', ''),
-                    section: relPath.split('/')[0],
+                    path: cleanPath,
+                    slug: pathParts.pop().replace('.md', ''),
+                    section: pathParts[0],
                     meta: parsed.meta,
                     content: parsed.content
                 });
             } else {
-                console.warn(`[Scriptorium] Ficheiro não encontrado (HTTP ${res.status}): ${fetchUrl}`);
+                console.warn(`[Scriptorium] Ficheiro não encontrado (HTTP ${res.status}): ${relPath}`);
             }
         } catch (e) {
             console.error(`[Scriptorium] Erro de rede/CORS ao carregar: ${relPath}`, e);
@@ -84,7 +74,17 @@ async function carregarCapaPrincipal() {
     }
 
     if (artigos.length === 0) {
-        container.innerHTML = '<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum ficheiro Markdown encontrado. Verifica a consola (F12) para detalhes.</p>';
+        container.innerHTML = `
+            <div class="w3-padding-16">
+                <p class="font-mono w3-small" style="color: var(--accent-color);">
+                    Nenhum ficheiro Markdown foi carregado.
+                </p>
+                <p class="font-mono w3-tiny" style="color: var(--muted-color);">
+                    Se estás a abrir o ficheiro localmente (file://), abre através de um servidor local (Live Server / HTTP). 
+                    Se já estás no servidor, confirma se os ficheiros existem exatamente na pasta <code>/corpus/md/</code>.
+                </p>
+            </div>
+        `;
         return;
     }
 
@@ -106,6 +106,7 @@ async function carregarCapaPrincipal() {
     // Geração dos cartões 100% clicáveis
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
+        // Garante o caminho relativo correto para o link a partir da capa
         const targetUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
@@ -140,9 +141,8 @@ async function roteadorSeccao() {
         }
     }
 
-    if (!container) return; // Ignora se não estiver numa página de secção
+    if (!container) return; // Ignora se não estiver numa subpasta de secção
 
-    const prefix = getRelativePrefix();
     const urlParams = new URLSearchParams(window.location.search);
     const artigoSlug = urlParams.get('artigo');
     const categoriaFiltro = urlParams.get('cat');
@@ -150,11 +150,10 @@ async function roteadorSeccao() {
     // --- MODO A: LEITURA INTEGRAL DE ARTIGO (?artigo=slug) ---
     if (artigoSlug) {
         try {
-            // Constrói o caminho exato a partir da localização atual (ex: ./md/20261022_nomada.md)
             const fetchUrl = `./md/${artigoSlug}.md`;
             const res = await fetch(fetchUrl);
             
-            if (!res.ok) throw new Error(`HTTP ${res.status} ao tentar aceder a ${fetchUrl}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             
             const rawText = await res.text();
             const parsed = parseMarkdown(rawText);
@@ -179,7 +178,6 @@ async function roteadorSeccao() {
                 </article>
             `;
         } catch (e) {
-            console.error("[Scriptorium] Erro ao carregar artigo individual:", e);
             container.innerHTML = `
                 <div class="w3-padding-24">
                     <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado na pasta <code>${seccaoAtiva}/md/</code>.</p>
@@ -195,13 +193,12 @@ async function roteadorSeccao() {
         ${categoriaFiltro ? 'Categoria: ' + categoriaFiltro.toUpperCase() : 'Índice Geral de ' + seccaoAtiva.toUpperCase()}
     </h2>`;
 
-    const ficheirosSeccao = manifest.filter(p => p.startsWith(`${seccaoAtiva}/md/`));
+    const ficheirosSeccao = manifest.filter(p => p.includes(`/${seccaoAtiva}/md/`) || p.startsWith(`${seccaoAtiva}/md/`));
     let encontrados = 0;
 
     for (const relPath of ficheirosSeccao) {
         try {
-            const fetchUrl = prefix + relPath;
-            const res = await fetch(fetchUrl);
+            const res = await fetch(relPath);
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
