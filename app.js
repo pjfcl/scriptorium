@@ -5,27 +5,27 @@
    ========================================================================== */
 
 // 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
-// Caminhos universais a partir da raiz de scriptoriumdigital.org
 const manifest = [
     // CORPUS (Sementes, Colheitas, Tinturas)
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
     'corpus/md/20261017_arte-e-social.md',
     'corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
     
-    // ESCOLA (Cadernos UAb, Cultura Mediada)
+    // ESCOLA
     'escola/md/20261010_caderno-uab-autoetnografia.md',
     
-    // OFICINA (Critical Code Studies, Scheme, C/POSIX)
+    // OFICINA
     'oficina/md/20261005_critical-code-studies.md'
 ];
 
 /**
- * Normaliza caminhos de ficheiro para garantir que o fetch encontra a raiz
+ * Normaliza os caminhos de fetch para que funcionem tanto no subdomínio como em subpastas
  */
-function resolveUrl(path) {
-    // Se a página atual está dentro de uma subpasta (ex: /corpus/), recua um nível.
-    const pathname = window.location.pathname;
-    const isSubfolder = pathname.includes('/corpus/') || pathname.includes('/escola/') || pathname.includes('/oficina/') || pathname.includes('/sobre/');
+function getFetchUrl(path) {
+    const isSubfolder = window.location.pathname.includes('/corpus/') || 
+                        window.location.pathname.includes('/escola/') || 
+                        window.location.pathname.includes('/oficina/') || 
+                        window.location.pathname.includes('/sobre/');
     return isSubfolder ? '../' + path : './' + path;
 }
 
@@ -58,9 +58,9 @@ async function carregarCapaPrincipal() {
     let artigos = [];
 
     for (const relPath of manifest) {
+        const targetUrl = getFetchUrl(relPath);
         try {
-            const fetchUrl = resolveUrl(relPath);
-            const res = await fetch(fetchUrl);
+            const res = await fetch(targetUrl);
             
             if (res.ok) {
                 const rawText = await res.text();
@@ -75,10 +75,10 @@ async function carregarCapaPrincipal() {
                     content: parsed.content
                 });
             } else {
-                console.warn(`[Scriptorium] HTTP ${res.status} ao carregar: ${fetchUrl}`);
+                console.warn(`[Scriptorium] HTTP ${res.status} ao aceder a: ${targetUrl}`);
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro ao carregar ${relPath}:`, e);
+            console.error(`[Scriptorium] Erro ao carregar ${targetUrl}:`, e);
         }
     }
 
@@ -86,19 +86,20 @@ async function carregarCapaPrincipal() {
         container.innerHTML = `
             <div class="w3-padding-16">
                 <p class="font-mono w3-small" style="color: var(--accent-color);">
-                    Nenhum ficheiro Markdown foi carregado.
+                    Nenhum ficheiro Markdown foi carregado do arquivo.
                 </p>
                 <p class="font-mono w3-tiny" style="color: var(--muted-color);">
-                    Confirma se no GitHub/Servidor o ficheiro se chama exatamente:<br>
-                    <code>corpus/md/20261022_nomada-europeu-de-esquerda.md</code> (atenção a maiúsculas na pasta).
+                    Abre a consola do navegador (F12 -> Console) para ver o código de erro retornado pelo servidor.
                 </p>
             </div>
         `;
         return;
     }
 
+    // Ordenação cronológica decrescente
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
 
+    // Filtragem: 1 artigo mais recente por categoria
     const categoriasVistas = new Set();
     const ultimosPorCategoria = [];
 
@@ -110,13 +111,14 @@ async function carregarCapaPrincipal() {
         }
     }
 
+    // Geração dos cartões clicáveis
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
-        const targetUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
+        const linkUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
         htmlOutput += `
-            <a href="${targetUrl}" class="entry-card-link">
+            <a href="${linkUrl}" class="entry-card-link">
                 <div class="entry-card">
                     <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
                     <h3>${artigo.meta.title || 'Sem título'}</h3>
@@ -203,7 +205,7 @@ async function roteadorSeccao() {
 
     for (const relPath of ficheirosSeccao) {
         try {
-            const fetchUrl = resolveUrl(relPath);
+            const fetchUrl = getFetchUrl(relPath);
             const res = await fetch(fetchUrl);
             if (res.ok) {
                 const rawText = await res.text();
@@ -229,4 +231,17 @@ async function roteadorSeccao() {
         }
     }
 
-    if (en
+    if (encontrados === 0) {
+        htmlOutput += `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhuma entrada encontrada para este filtro em ${seccaoAtiva}.</p>`;
+    }
+
+    container.innerHTML = htmlOutput;
+}
+
+/* ==========================================================================
+   4. INICIALIZAÇÃO AUTOMÁTICA
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    carregarCapaPrincipal();
+    roteadorSeccao();
+});
