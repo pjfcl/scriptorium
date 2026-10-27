@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor SPA Blindado (app.js)
+   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor SPA (app.js)
    Soberania Digital, Humanidades & Arquitetura Estática
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
@@ -24,36 +24,32 @@ async function carregarTodosArtigos() {
     let artigos = [];
 
     try {
-        const manifestRes = await fetch('./manifest.json');
-        if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status} ao carregar manifest.json`);
+        const manifestRes = await fetch('manifest.json');
+        if (!manifestRes.ok) throw new Error("Não foi possível carregar o manifest.json");
         
         const manifestData = await manifestRes.json();
         const entradas = manifestData.artigos || [];
-        console.log("[Scriptorium] Manifesto carregado com sucesso:", entradas);
 
         for (const item of entradas) {
             try {
-                // Garante caminho relativo limpo
-                const cleanPath = item.path.startsWith('/') ? item.path.substring(1) : item.path;
-                const res = await fetch(cleanPath);
-                
+                // Garante que o fetch aponta corretamente para o caminho do ficheiro .md
+                const res = await fetch(item.path);
                 if (res.ok) {
                     const rawText = await res.text();
                     const parsed = parseMarkdown(rawText);
 
                     artigos.push({
-                        path: cleanPath,
+                        path: item.path,
                         slug: item.slug,
                         section: item.section,
                         meta: parsed.meta,
                         content: parsed.content
                     });
-                    console.log(`[Scriptorium] Carregado com sucesso: ${cleanPath}`);
                 } else {
-                    console.warn(`[Scriptorium] Falha ao carregar ${cleanPath} (HTTP ${res.status})`);
+                    console.warn(`[Scriptorium] Aviso: Não foi possível ler ${item.path} (HTTP ${res.status})`);
                 }
             } catch (e) {
-                console.error(`[Scriptorium] Erro de fetch no artigo ${item.path}:`, e);
+                console.error(`[Scriptorium] Erro ao aceder ao artigo ${item.path}:`, e);
             }
         }
     } catch (e) {
@@ -69,7 +65,7 @@ async function renderizarCapa(artigos) {
     if (!container) return;
 
     if (artigos.length === 0) {
-        container.innerHTML = `<p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">Nenhum registo encontrado no Scriptorium. (Verifica a consola F12 para detalhes de fetch)</p>`;
+        container.innerHTML = `<p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">Nenhum registo encontrado no Scriptorium. (Verifique o manifest.json e os caminhos dos ficheiros .md)</p>`;
         return;
     }
 
@@ -99,7 +95,6 @@ async function router() {
 
     const viewHome = document.getElementById('view-home');
     const viewContent = document.getElementById('view-content');
-    const dynamicContainer = document.getElementById('dynamic-container');
 
     if (!viewHome || !viewContent) return;
 
@@ -112,8 +107,11 @@ async function router() {
 
         const artigo = artigos.find(a => a.slug === artigoParam);
         if (artigo) {
-            dynamicContainer.innerHTML = `
+            viewContent.innerHTML = `
                 <article>
+                    <div class="breadcrumb" style="margin-bottom: 20px;">
+                        <a href="index.html">Início</a> / <span>${artigo.section}</span>
+                    </div>
                     <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${artigo.meta.date || ''}</span>
                     <h2 class="font-sans" style="font-size: 1.8rem; font-weight: 600; color: var(--text-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
                         ${artigo.meta.title || 'Sem título'}
@@ -127,7 +125,7 @@ async function router() {
                 </article>
             `;
         } else {
-            dynamicContainer.innerHTML = `
+            viewContent.innerHTML = `
                 <div style="padding: 30px 0;">
                     <p class="font-mono" style="font-size: 0.85rem; color: var(--accent-color);">O artigo <code>${artigoParam}</code> não foi encontrado.</p>
                     <a href="index.html" class="font-mono" style="font-size: 0.82rem; color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Início</a>
@@ -144,9 +142,13 @@ async function router() {
 
         const filtrados = artigos.filter(a => a.section.toLowerCase() === seccaoParam.toLowerCase());
         
-        let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-            Secção: ${seccaoParam.toUpperCase()}
-        </h2>`;
+        let htmlOutput = `
+            <div class="breadcrumb" style="margin-bottom: 20px;">
+                <a href="index.html">Início</a> / <span>${seccaoParam}</span>
+            </div>
+            <h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                Secção: ${seccaoParam.toUpperCase()}
+            </h2>`;
 
         if (filtrados.length > 0) {
             filtrados.forEach(artigo => {
@@ -172,7 +174,7 @@ async function router() {
             </div>
         `;
 
-        dynamicContainer.innerHTML = htmlOutput;
+        viewContent.innerHTML = htmlOutput;
         return;
     }
 
