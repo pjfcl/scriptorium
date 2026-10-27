@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor SPA (app.js)
+   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor SPA Blindado (app.js)
    Soberania Digital, Humanidades & Arquitetura Estática
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
@@ -24,33 +24,40 @@ async function carregarTodosArtigos() {
     let artigos = [];
 
     try {
-        const manifestRes = await fetch('manifest.json');
-        if (!manifestRes.ok) throw new Error("Não foi possível carregar o manifest.json");
+        const manifestRes = await fetch('./manifest.json');
+        if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status} ao carregar manifest.json`);
         
         const manifestData = await manifestRes.json();
         const entradas = manifestData.artigos || [];
+        console.log("[Scriptorium] Manifesto carregado com sucesso:", entradas);
 
         for (const item of entradas) {
             try {
-                const res = await fetch(item.path);
+                // Garante caminho relativo limpo
+                const cleanPath = item.path.startsWith('/') ? item.path.substring(1) : item.path;
+                const res = await fetch(cleanPath);
+                
                 if (res.ok) {
                     const rawText = await res.text();
                     const parsed = parseMarkdown(rawText);
 
                     artigos.push({
-                        path: item.path,
+                        path: cleanPath,
                         slug: item.slug,
                         section: item.section,
                         meta: parsed.meta,
                         content: parsed.content
                     });
+                    console.log(`[Scriptorium] Carregado com sucesso: ${cleanPath}`);
+                } else {
+                    console.warn(`[Scriptorium] Falha ao carregar ${cleanPath} (HTTP ${res.status})`);
                 }
             } catch (e) {
-                console.error(`[Scriptorium] Erro ao aceder ao artigo ${item.path}:`, e);
+                console.error(`[Scriptorium] Erro de fetch no artigo ${item.path}:`, e);
             }
         }
     } catch (e) {
-        console.error("[Scriptorium] Erro ao carregar manifesto:", e);
+        console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
@@ -62,7 +69,7 @@ async function renderizarCapa(artigos) {
     if (!container) return;
 
     if (artigos.length === 0) {
-        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum registo encontrado no Scriptorium.</p>`;
+        container.innerHTML = `<p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">Nenhum registo encontrado no Scriptorium. (Verifica a consola F12 para detalhes de fetch)</p>`;
         return;
     }
 
