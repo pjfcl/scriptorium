@@ -4,22 +4,23 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Sem barra inicial para maior flexibilidade)
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
+// Caminhos relativos à raiz do Scriptorium Digital
 const manifest = [
-    // CORPUS
+    // CORPUS (Sementes, Colheitas, Tinturas)
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
     'corpus/md/20261017_arte-e-social.md',
     'corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
     
-    // ESCOLA
+    // ESCOLA (Cadernos UAb, Cultura Mediada)
     'escola/md/20261010_caderno-uab-autoetnografia.md',
     
-    // OFICINA
+    // OFICINA (Critical Code Studies, Scheme, C/POSIX)
     'oficina/md/20261005_critical-code-studies.md'
 ];
 
 /**
- * Deteta o prefixo de caminho relativo necessário com base na localização da página.
+ * Calculador de caminho relativo consoante a profundidade
  */
 function getBasePath() {
     const path = window.location.pathname;
@@ -42,14 +43,14 @@ function parseMarkdown(text) {
                 content: match[2]
             };
         } catch (e) {
-            console.error("[Scriptorium] Erro YAML:", e);
+            console.error("[Scriptorium] Erro ao interpretar YAML:", e);
         }
     }
     return { meta: {}, content: text };
 }
 
 /* ==========================================================================
-   2. MOTOR DA CAPA PRINCIPAL (index.html na Raiz)
+   2. MOTOR DA CAPA PRINCIPAL (index.html)
    ========================================================================== */
 async function carregarCapaPrincipal() {
     const container = document.getElementById('entradas-recentes');
@@ -76,10 +77,10 @@ async function carregarCapaPrincipal() {
                     content: parsed.content
                 });
             } else {
-                console.warn(`[Scriptorium] HTTP ${res.status} em: ${fetchUrl}`);
+                console.warn(`[Scriptorium] Erro 404 ao tentar carregar: ${fetchUrl}`);
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro de acesso/CORS: ${relPath}`, e);
+            console.error(`[Scriptorium] Falha de rede/CORS: ${relPath}`, e);
         }
     }
 
@@ -87,19 +88,20 @@ async function carregarCapaPrincipal() {
         container.innerHTML = `
             <div class="w3-padding-16">
                 <p class="font-mono w3-small" style="color: var(--accent-color);">
-                    Nenhum ficheiro Markdown foi carregado.
+                    Nenhum ficheiro Markdown foi carregado do arquivo.
                 </p>
                 <p class="font-mono w3-tiny" style="color: var(--muted-color);">
-                    Se estás a abrir via <code>file://</code> no computador, utiliza um servidor local (Live Server ou Python HTTP). 
-                    Se estás no Hostinger / GitHub Pages, confirma se os ficheiros em <code>corpus/md/</code> estão publicados.
+                    Confirma se a pasta <code>corpus/md/</code> no servidor contém exatamente o ficheiro <code>20261022_nomada-europeu-de-esquerda.md</code> (em minúsculas).
                 </p>
             </div>
         `;
         return;
     }
 
+    // Ordenação cronológica decrescente
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
 
+    // Filtragem: 1 artigo mais recente por categoria
     const categoriasVistas = new Set();
     const ultimosPorCategoria = [];
 
@@ -111,6 +113,7 @@ async function carregarCapaPrincipal() {
         }
     }
 
+    // Geração dos cartões clicáveis
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
         const targetUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
@@ -131,7 +134,7 @@ async function carregarCapaPrincipal() {
 }
 
 /* ==========================================================================
-   3. ROTEADOR DE SECÇÕES (Corpus, Escola, Oficina, Sobre)
+   3. ROTEADOR DE SECÇÕES
    ========================================================================== */
 async function roteadorSeccao() {
     const seccoes = ['corpus', 'escola', 'oficina', 'sobre'];
@@ -154,7 +157,7 @@ async function roteadorSeccao() {
     const artigoSlug = urlParams.get('artigo');
     const categoriaFiltro = urlParams.get('cat');
 
-    // MODO A: LEITURA INTEGRAL DE ARTIGO (?artigo=slug)
+    // MODO A: LEITURA INTEGRAL (?artigo=slug)
     if (artigoSlug) {
         try {
             const fetchUrl = `./md/${artigoSlug}.md`;
