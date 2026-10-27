@@ -4,27 +4,23 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Caminhos absolutos a partir da raiz)
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Centralizados na pasta /md/)
 const manifest = [
     // CORPUS
-    '/corpus/md/20261022_nomada-europeu-de-esquerda.md',
-    '/corpus/md/20261017_arte-e-social.md',
-    '/corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
+    'md/corpus/teste.md',
     
     // ESCOLA
-    '/escola/md/20261010_caderno-uab-autoetnografia.md',
+    'md/escola/teste.md',
     
     // OFICINA
-    '/oficina/md/20261005_critical-code-studies.md'
+    'md/oficina/teste.md',
+    
+    // SOBRE
+    'md/sobre/teste.md',
+    
+    // RAIZ
+    'md/teste.md'
 ];
-
-/**
- * Retorna sempre o caminho absoluto infalível a partir da raiz do domínio
- */
-function getFetchUrl(path) {
-    // Garante que começa sempre com uma única barra /
-    return path.startsWith('/') ? path : '/' + path;
-}
 
 /**
  * Parser de YAML Front Matter e Markdown
@@ -45,29 +41,27 @@ function parseMarkdown(text) {
     return { meta: {}, content: text };
 }
 
-/* ==========================================================================
-   2. MOTOR DA CAPA PRINCIPAL (index.html na Raiz)
-   ========================================================================== */
-async function carregarCapaPrincipal() {
-    const container = document.getElementById('entradas-recentes');
-    if (!container) return;
-
+/**
+ * Carrega e processa todos os ficheiros do manifesto
+ */
+async function carregarTodosArtigos() {
     let artigos = [];
 
-    for (const absPath of manifest) {
-        const fetchUrl = getFetchUrl(absPath);
+    for (const path of manifest) {
         try {
-            const res = await fetch(fetchUrl);
+            const res = await fetch(path);
             if (res.ok) {
                 const rawText = await res.text();
                 const parsed = parseMarkdown(rawText);
                 
-                const pathParts = absPath.replace(/^\/+/, '').split('/');
-                const section = pathParts[0]; 
-                const slug = pathParts[pathParts.length - 1].replace('.md', '');
+                // Exemplo de path: 'md/escola/20261010_caderno-uab.md'
+                const parts = path.split('/');
+                const section = parts.length > 2 ? parts[1] : 'geral'; // ex: escola, corpus, oficina
+                const filename = parts[parts.length - 1];
+                const slug = filename.replace('.md', '');
 
                 artigos.push({
-                    path: absPath,
+                    path: path,
                     slug: slug,
                     section: section,
                     meta: parsed.meta,
@@ -75,31 +69,31 @@ async function carregarCapaPrincipal() {
                 });
             }
         } catch (e) {
-            console.error(`[Scriptorium] Erro ao aceder a ${fetchUrl}:`, e);
+            console.error(`[Scriptorium] Erro ao aceder a ${path}:`, e);
         }
     }
 
+    // Ordenação cronológica decrescente por data
+    artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
+    return artigos;
+}
+
+/* ==========================================================================
+   2. MOTOR DA CAPA PRINCIPAL (Home View)
+   ========================================================================== */
+async function renderizarCapa(artigos) {
+    const container = document.getElementById('entradas-recentes');
+    if (!container) return;
+
     if (artigos.length === 0) {
-        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum ficheiro Markdown carregado.</p>`;
+        container.innerHTML = `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum ficheiro Markdown encontrado no manifesto.</p>`;
         return;
     }
 
-    artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
-
-    const categoriasVistas = new Set();
-    const ultimosPorCategoria = [];
-
-    for (const artigo of artigos) {
-        const cat = (artigo.meta.category || artigo.section || 'geral').toLowerCase();
-        if (!categoriasVistas.has(cat)) {
-            categoriasVistas.add(cat);
-            ultimosPorCategoria.push(artigo);
-        }
-    }
-
+    // Seleciona as entradas mais recentes
     let htmlOutput = '';
-    ultimosPorCategoria.forEach(artigo => {
-        const linkUrl = `/${artigo.section}/index.html?artigo=${artigo.slug}`;
+    artigos.slice(0, 5).forEach(artigo => {
+        const linkUrl = `index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
         htmlOutput += `
@@ -117,119 +111,107 @@ async function carregarCapaPrincipal() {
 }
 
 /* ==========================================================================
-   3. ROTEADOR DE SECÇÕES (Corpus, Escola, Oficina, Sobre)
+   3. ROTEADOR SPA (Gestão de Vistas por Parâmetros de URL)
    ========================================================================== */
-async function roteadorSeccao() {
-    const seccoes = ['corpus', 'escola', 'oficina', 'sobre'];
-    let seccaoAtiva = null;
-    let container = null;
-
-    for (const sec of seccoes) {
-        const el = document.getElementById(`${sec}-content`);
-        if (el) {
-            seccaoAtiva = sec;
-            container = el;
-            break;
-        }
-    }
-
-    if (!container) return;
-
+async function router() {
     const urlParams = new URLSearchParams(window.location.search);
-    const artigoSlug = urlParams.get('artigo');
-    const categoriaFiltro = urlParams.get('cat');
+    const seccaoParam = urlParams.get('seccao');
+    const artigoParam = urlParams.get('artigo');
 
-    // MODO A: LEITURA DE ARTIGO ESPECÍFICO (?artigo=slug)
-    if (artigoSlug) {
-        const manifestoMatch = manifest.find(p => p.includes(`${artigoSlug}.md`));
-        const targetPath = manifestoMatch || `/${seccaoAtiva}/md/${artigoSlug}.md`;
-        const fetchUrl = getFetchUrl(targetPath);
+    const viewHome = document.getElementById('view-home');
+    const viewContent = document.getElementById('view-content');
+    const dynamicContainer = document.getElementById('dynamic-container');
+    const breadcrumbCurrent = document.getElementById('breadcrumb-current');
 
-        try {
-            const res = await fetch(fetchUrl);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!viewHome || !viewContent) return;
+
+    // Carrega todos os artigos do manifesto uma única vez
+    const artigos = await carregarTodosArtigos();
+
+    // CASO A: LEITURA DE UM ARTIGO ESPECÍFICO (?artigo=slug)
+    if (artigoParam) {
+        viewHome.style.display = 'none';
+        viewContent.style.display = 'block';
+
+        const artigo = artigos.find(a => a.slug === artigoParam);
+        if (artigo) {
+            if (breadcrumbCurrent) breadcrumbCurrent.textContent = artigo.meta.title || artigo.slug;
             
-            const rawText = await res.text();
-            const parsed = parseMarkdown(rawText);
-
-            const breadcrumbSub = document.getElementById('breadcrumb-sub');
-            if (breadcrumbSub) {
-                breadcrumbSub.innerHTML = `<a href="index.html">${seccaoAtiva}</a> / ${parsed.meta.category || 'artigo'}`;
-            }
-            
-            container.innerHTML = `
+            dynamicContainer.innerHTML = `
                 <article>
-                    <span class="entry-meta font-mono">${(parsed.meta.category || seccaoAtiva).toUpperCase()} • ${parsed.meta.date || ''}</span>
+                    <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${artigo.meta.date || ''}</span>
                     <h2 class="font-sans" style="font-size: 1.8rem; font-weight: 600; color: var(--text-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                        ${parsed.meta.title || 'Sem título'}
+                        ${artigo.meta.title || 'Sem título'}
                     </h2>
                     <div class="markdown-body" style="margin-top: 20px;">
-                        ${marked.parse(parsed.content)}
+                        ${marked.parse(artigo.content)}
                     </div>
                     <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                        <a href="index.html" class="font-mono w3-small" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Índice de ${seccaoAtiva.toUpperCase()}</a>
+                        <a href="index.html" class="font-mono w3-small" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
                     </div>
                 </article>
             `;
-        } catch (e) {
-            container.innerHTML = `
+        } else {
+            dynamicContainer.innerHTML = `
                 <div class="w3-padding-24">
-                    <p class="font-mono w3-small" style="color: var(--accent-color);">O ficheiro <code>${artigoSlug}.md</code> não foi encontrado (tentativa em <code>${fetchUrl}</code>).</p>
-                    <a href="index.html" class="font-mono w3-small" style="color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Índice</a>
+                    <p class="font-mono w3-small" style="color: var(--accent-color);">O artigo <code>${artigoParam}</code> não foi encontrado.</p>
+                    <a href="index.html" class="font-mono w3-small" style="color: var(--text-color); text-decoration: underline;">&larr; Voltar ao Início</a>
                 </div>
             `;
         }
         return;
     }
 
-    // MODO B: LISTAGEM DA SECÇÃO (Índice)
-    let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-        ${categoriaFiltro ? 'Categoria: ' + categoriaFiltro.toUpperCase() : 'Índice Geral de ' + seccaoAtiva.toUpperCase()}
-    </h2>`;
+    // CASO B: LISTAGEM DE UMA SECÇÃO (?seccao=nome)
+    if (seccaoParam) {
+        viewHome.style.display = 'none';
+        viewContent.style.display = 'block';
 
-    const ficheirosSeccao = manifest.filter(p => p.startsWith(`/${seccaoAtiva}/md/`));
-    let encontrados = 0;
+        if (breadcrumbCurrent) breadcrumbCurrent.textContent = seccaoParam.toUpperCase();
 
-    for (const absPath of ficheirosSeccao) {
-        const fetchUrl = getFetchUrl(absPath);
-        try {
-            const res = await fetch(fetchUrl);
-            if (res.ok) {
-                const rawText = await res.text();
-                const parsed = parseMarkdown(rawText);
-                const pathParts = absPath.replace(/^\/+/, '').split('/');
-                const slug = pathParts[pathParts.length - 1].replace('.md', '');
-                const cat = (parsed.meta.category || 'geral').toLowerCase();
+        const filtrados = artigos.filter(a => a.section.toLowerCase() === seccaoParam.toLowerCase());
+        
+        let htmlOutput = `<h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            Secção: ${seccaoParam.toUpperCase()}
+        </h2>`;
 
-                if (!categoriaFiltro || cat === categoriaFiltro.toLowerCase()) {
-                    encontrados++;
-                    htmlOutput += `
-                        <a href="index.html?artigo=${slug}" class="entry-card-link">
-                            <div class="entry-card">
-                                <span class="entry-meta">${cat.toUpperCase()} • ${parsed.meta.date || ''}</span>
-                                <h3>${parsed.meta.title || 'Sem título'}</h3>
-                                <p>${parsed.meta.summary || ''}</p>
-                            </div>
-                        </a>
-                    `;
-                }
-            }
-        } catch (e) {
-            console.error(`[Scriptorium] Erro a listar ${seccaoAtiva}:`, fetchUrl, e);
+        if (filtrados.length > 0) {
+            filtrados.forEach(artigo => {
+                const linkUrl = `index.html?artigo=${artigo.slug}`;
+                const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
+                htmlOutput += `
+                    <a href="${linkUrl}" class="entry-card-link">
+                        <div class="entry-card">
+                            <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
+                            <h3>${artigo.meta.title || 'Sem título'}</h3>
+                            <p>${artigo.meta.summary || ''}</p>
+                        </div>
+                    </a>
+                `;
+            });
+        } else {
+            htmlOutput += `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhum registo encontrado nesta secção.</p>`;
         }
+
+        htmlOutput += `
+            <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <a href="index.html" class="font-mono w3-small" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
+            </div>
+        `;
+
+        dynamicContainer.innerHTML = htmlOutput;
+        return;
     }
 
-    if (encontrados === 0) {
-        htmlOutput += `<p class="font-mono w3-small" style="color: var(--muted-color);">Nenhuma entrada encontrada para este filtro em ${seccaoAtiva}.</p>`;
-    }
-
-    container.innerHTML = htmlOutput;
+    // CASO C: VISTA DE CAPA PADRÃO
+    viewHome.style.display = 'block';
+    viewContent.style.display = 'none';
+    await renderizarCapa(artigos);
 }
 
 /* ==========================================================================
-   4. INICIALIZAÇÃO AUTOMÁTICA
+   4. INICIALIZAÇÃO
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-    carregarCapaPrincipal();
-    roteadorSeccao();
+    router();
 });
