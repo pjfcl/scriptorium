@@ -4,9 +4,9 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN (Pastas em minúsculas)
+// 1. MANIFESTO GLOBAL DE FICHEIROS MARKDOWN
 const manifest = [
-    // CORPUS
+    // CORPUS (Sementes, Colheitas, Tinturas)
     'corpus/md/20261022_nomada-europeu-de-esquerda.md',
     'corpus/md/20261017_arte-e-social.md',
     'corpus/md/20261016_alguns-problemas-das-redes-sociais.md',
@@ -53,7 +53,7 @@ function parseMarkdown(text) {
    ========================================================================== */
 async function carregarCapaPrincipal() {
     const container = document.getElementById('entradas-recentes');
-    if (!container) return; // Se não estiver na capa, sai
+    if (!container) return;
 
     let artigos = [];
 
@@ -101,7 +101,6 @@ async function carregarCapaPrincipal() {
 
     let htmlOutput = '';
     ultimosPorCategoria.forEach(artigo => {
-        // CORREÇÃO CRUCIGA: Garante que o link aponta corretamente para a pasta da secção a partir da raiz
         const linkUrl = `${artigo.section}/index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
@@ -144,10 +143,12 @@ async function roteadorSeccao() {
 
     // MODO A: LEITURA DE ARTIGO ESPECÍFICO (?artigo=slug)
     if (artigoSlug) {
+        // Encontra no manifesto qual o caminho exato correspondente a este slug
+        const manifestoMatch = manifest.find(p => p.includes(`${artigoSlug}.md`));
+        const fetchUrl = manifestoMatch ? getFetchUrl(manifestoMatch) : `./md/${artigoSlug}.md`;
+
         try {
-            const fetchUrl = `./md/${artigoSlug}.md`;
             const res = await fetch(fetchUrl);
-            
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             
             const rawText = await res.text();
