@@ -3,54 +3,54 @@
     "title": "teste.md",
     "category": "oficina",
     "url": "/oficina/teste.html",
-    "content": "\n"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
-    "title": "20261005_critical-code-studies.md",
+    "title": "Critical Code Studies: O Código como Texto",
     "category": "oficina",
     "url": "/oficina/20261005_critical-code-studies.html",
-    "content": "---\ntitle: \"Critical Code Studies: O Código como Texto\"\ndate: \"2026-10-05\"\ncategory: \"oficina\"\ntype: \"tecnica\"\nsummary: \"Reflexões sobre a leitura hermenêutica do código-fonte, arquiteturas minimalist"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
-    "title": "20261010_caderno-uab-autoetnografia.md",
+    "title": "Cadernos da UAb: Auto-etnografia e Cultura Mediada",
     "category": "escola",
     "url": "/escola/20261010_caderno-uab-autoetnografia.html",
-    "content": "---\ntitle: \"Cadernos da UAb: Auto-etnografia e Cultura Mediada\"\ndate: \"2026-10-10\"\ncategory: \"escola\"\ntype: \"apontamento\"\nsummary: \"Notas de investigação sobre métodos auto-etnográficos aplicados ao e"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
     "title": "teste.md",
     "category": "escola",
     "url": "/escola/teste.html",
-    "content": "\n"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
     "title": "teste.md",
     "category": "sobre",
     "url": "/sobre/teste.html",
-    "content": "\n"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
-    "title": "20261022_nomada-europeu-de-esquerda.md",
+    "title": "Agenda para Nómada Europeu de Esquerda",
     "category": "corpus",
     "url": "/corpus/20261022_nomada-europeu-de-esquerda.html",
-    "content": "---\ntitle: \"Agenda para Nómada Europeu de Esquerda\"\ndate: \"2026-10-22\"\ncategory: \"colheita\"\ntype: \"ensaio\"\nsummary: \"Apontamentos e reflexões de itinerário sobre o pensamento crítico europeu, mobilida"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
-    "title": "20261017_arte-e-social.md",
+    "title": "A Arte é Social",
     "category": "corpus",
     "url": "/corpus/20261017_arte-e-social.html",
-    "content": "---\ntitle: \"A Arte é Social\"\ndate: \"2026-10-17\"\ncategory: \"semente\"\ntype: \"citacao\"\nsummary: \"Reflexão em torno da inevitabilidade social da criação artística, mesmo quando situada num suposto isolame"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
-    "title": "20261016_alguns-problemas-das-redes-sociais.md",
+    "title": "Alguns Problemas das Redes Sociais",
     "category": "corpus",
     "url": "/corpus/20261016_alguns-problemas-das-redes-sociais.html",
-    "content": "---\ntitle: \"Alguns Problemas das Redes Sociais\"\ndate: \"2026-10-16\"\ncategory: \"tintura\"\ntype: \"narrativa\"\nsummary: \"Uma leitura concetual sobre a alienação digital, os meios de produção cultural e o op"
+    "content": "Conteúdo indexado do Scriptorium"
   },
   {
-    "title": "teste.md",
+    "title": "teste para script (chez scheme) search-index.json",
     "category": "corpus",
     "url": "/corpus/teste.html",
-    "content": "# teste para script (chez scheme) search-index.json\n\ntentativa 3\n"
+    "content": "Conteúdo indexado do Scriptorium"
   }
 ]
