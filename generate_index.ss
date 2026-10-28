@@ -1,60 +1,66 @@
-;; Script Chez Scheme corrigido e robusto para o Scriptorium
+;; Script Chez Scheme Robusto para o Scriptorium
 (import (chezscheme))
 
-(define (read-file-string filepath)
-  (call-with-input-file filepath
-    (lambda (p) (get-string-all p))))
+(define (safe-read-file filepath)
+  (guard (con [else #f])
+    (call-with-input-file filepath
+      (lambda (p) (get-string-all p)))))
 
 (define (generate-search-index)
+  (printf "Iniciando a geração do índice de pesquisa...~n")
   (let ((md-dir "md")
         (index-entries '()))
-    (if (file-directory? md-dir)
-        (let loop-cats ((cats (directory-list md-dir)))
-          (unless (null? cats)
-            (let* ((cat (car cats))
-                   (cat-path (string-append md-dir "/" (keyword->string cat) ))) ; ou string direto
-              ;; Nota: em Chez Scheme, directory-list devolve strings se forem nomes
-              (let* ((cat-str (if (symbol? cat) (symbol->string cat) cat))
-                     (real-path (string-append md-dir "/" cat-str)))
-                (when (file-directory? real-path)
-                  (let loop-files ((files (directory-list real-path)))
-                    (unless (null? files)
-                      (let* ((file (car files))
-                             (file-str (if (symbol? file) (symbol->string file) file))
-                             (filepath (string-append real-path "/" file-str)))
-                        (when (and (file-regular? filepath)
-                                   (string-suffix? ".md" file-str))
-                          (let* ((content (read-file-string filepath))
-                                 (url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html"))))
-                            (set! index-entries
-                              (cons `((title . ,file-str)
-                                      (category . ,cat-str)
-                                      (url . ,url)
-                                      (content . ,(substring content 0 (min 200 (string-length content)))))
-                                    index-entries)))))
-                        (loop-files (cdr files))))))
-              (loop-cats (cdr cats)))))
-        (printf "Aviso: Diretório 'md' não encontrado!\\n"))
-    
-    (printf "Total de entradas encontradas: ~a\\n" (length index-entries))
+    (cond
+      ((file-directory? md-dir)
+       (let ((cats (directory-list md-dir)))
+         (for-each
+           (lambda (cat)
+             (let* ((cat-str (if (symbol? cat) (symbol->string cat) cat))
+                    (cat-path (string-append md-dir "/" cat-str)))
+               (when (file-directory? cat-path)
+                 (let ((files (directory-list cat-path)))
+                   (for-each
+                     (lambda (file)
+                       (let* ((file-str (if (symbol? file) (symbol->string file) file))
+                              (filepath (string-append cat-path "/" file-str)))
+                         (when (and (file-regular? filepath)
+                                    (string-suffix? ".md" file-str))
+                           (let* ((content (safe-read-file filepath))
+                                  (clean-content (if content content "")))
+                             (let* ((url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html")))
+                                    (snippet (substring clean-content 0 (min 200 (string-length clean-content)))))
+                               (set! index-entries
+                                 (cons `((title . ,file-str)
+                                         (category . ,cat-str)
+                                         (url . ,url)
+                                         (content . ,snippet))
+                                       index-entries))
+                             (printf "Processado: ~a/~a~n" cat-str file-str))))))
+                     files)))))
+           cats)))
+      (else
+       (printf "Aviso: Diretório 'md' não encontrado na raiz!~n")))
 
-    ;; Escrever o ficheiro search-index.json preenchido
-    (call-with-output-file "search-index.json"
-      (lambda (p)
-        (fprintf p "[\\n")
-        (let loop ((entries index-entries) (first? #t))
-          (unless (null? entries)
-            (let ((entry (car entries)))
-              (unless first? (fprintf p ",\\n"))
-              (fprintf p "  {\\n    \"title\": ~s,\\n    \"category\": ~s,\\n    \"url\": ~s,\\n    \"content\": ~s\\n  }"
-                       (cdr (assoc 'title entry))
-                       (cdr (assoc 'category entry))
-                       (cdr (assoc 'url entry))
-                       (cdr (assoc 'content entry))))
-            (loop (cdr entries) #f)))
-        (fprintf p "\\n]\\n"))
-      'replace)
-    (printf "search-index.json gerado com sucesso.\\n")))
+    (printf "Total de ensaios indexados: ~a~n" (length index-entries))
+
+    ;; Escrever o ficheiro search-index.json de forma segura
+    (guard (con [else (begin (display "Erro ao escrever o ficheiro JSON\n") (exit 1))])
+      (call-with-output-file "search-index.json"
+        (lambda (p)
+          (fprintf p "[\n")
+          (let loop ((entries index-entries) (first? #t))
+            (unless (null? entries)
+              (let ((entry (car entries)))
+                (unless first? (fprintf p ",\n"))
+                (fprintf p "  {\n    \"title\": ~s,\n    \"category\": ~s,\n    \"url\": ~s,\n    \"content\": ~s\n  }"
+                         (cdr (assoc 'title entry))
+                         (cdr (assoc 'category entry))
+                         (cdr (assoc 'url entry))
+                         (cdr (assoc 'content entry))))
+              (loop (cdr entries) #f)))
+          (fprintf p "\n]\n"))
+        'replace))
+    (printf "search-index.json gerado com sucesso soberano.~n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
@@ -66,4 +72,6 @@
   (let ((len (string-length str)))
     (string-append (substring str 0 (- len (string-length old-ext))) new-ext)))
 
-(generate-search-index)
+;; Execução protegida
+(guard (con [else (begin (display "Erro fatal na execução do script Scheme:\n") (print-condition con) (exit 255))])
+  (generate-search-index))
