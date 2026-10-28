@@ -1,4 +1,4 @@
-      - name: Executar o Script Chez Scheme (search)
+      - name: Executar o Script Chez Scheme
         run: scheme --script generate_index.ss
 
       - name: Publicar alterações no Repositório (Commit Forçado)
