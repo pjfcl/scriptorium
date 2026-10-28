@@ -1,4 +1,4 @@
-;; Script Chez Scheme Definitivo e Limpo para o Scriptorium
+;; Script Chez Scheme Completo para o Scriptorium (Incluindo teste.md)
 (import (chezscheme))
 
 (define (read-file-string filepath)
@@ -25,16 +25,14 @@
        (substring (car lst) 2 (string-length (car lst))))
       (else (loop (cdr lst))))))
 
-;; Remove o bloco de frontmatter YAML (se existir entre '---' e '---') e limpa para JSON seguro
 (define (clean-and-sanitize raw-str)
   (let* ((len (string-length raw-str))
-         ;; Verificar se começa com "---" para saltar o frontmatter
          (start-idx (if (and (>= len 3) (string=? (substring raw-str 0 3) "---"))
-                        (let find-end车 ((i 3))
+                        (let find-end ((i 3))
                           (cond
                             ((> (+ i 3) len) 0)
                             ((string=? (substring raw-str i (+ i 3)) "---") (+ i 3))
-                            (else (find-end车 (+ i 1)))))
+                            (else (find-end (+ i 1)))))
                         0))
          (body-str (if (> start-idx 0)
                        (substring raw-str start-idx len)
@@ -53,47 +51,56 @@
     out))
 
 (define (generate-index)
-  (printf "A gerar índice de pesquisa soberano (sem testes e sem YAML)...~n")
+  (printf "A gerar índice de pesquisa completo (incluindo ficheiros teste.md)...~n")
   (let ((md-dir "md")
         (entries '()))
-    (cond
-      ((file-directory? md-dir)
-       (let ((cats (directory-list md-dir)))
-         (for-each
-           (lambda (cat)
-             (let* ((cat-str (if (symbol? cat) (symbol->string cat) cat))
-                    (cat-path (string-append md-dir "/" cat-str)))
-               (when (file-directory? cat-path)
-                 (let ((files (directory-list cat-path)))
+    (when (file-directory? md-dir)
+      (let ((root-items (directory-list md-dir)))
+        (for-each
+          (lambda (item)
+            (let* ((item-str (if (symbol? item) (symbol->string item) item))
+                   (item-path (string-append md-dir "/" item-str)))
+              (cond
+                ;; Se for um ficheiro .md diretamente na raiz de md/
+                ((and (file-regular? item-path) (string-suffix? ".md" item-str))
+                 (let* ((lines (read-lines item-path))
+                        (raw-content (read-file-string item-path))
+                        (title (extract-title lines item-str))
+                        (url (string-append "/" (string-replace-ext item-str ".md" ".html")))
+                        (clean-snippet (clean-and-sanitize raw-content)))
+                   (set! entries
+                     (cons `((title . ,title)
+                             (category . "geral")
+                             (url . ,url)
+                             (content . ,clean-snippet))
+                           entries))
+                   (printf "Indexado (raiz): ~a~n" title)))
+                ;; Se for um diretório (ex: corpus, escola, oficina, sobre)
+                ((file-directory? item-path)
+                 (let ((sub-files (directory-list item-path)))
                    (for-each
-                     (lambda (file)
-                       (let* ((file-str (if (symbol? file) (symbol->string file) file))
-                              (filepath (string-append cat-path "/" file-str)))
-                         ;; FILTRO RIGOROSO: Ignorar qualquer ficheiro que contenha 'teste' ou não seja .md
-                         (when (and (file-regular? filepath)
-                                    (string-suffix? ".md" file-str)
-                                    (not (string-contains? file-str "teste")))
-                           (guard (err [else (printf "Aviso ao processar ~a~n" filepath)])
-                             (let* ((lines (read-lines filepath))
-                                    (raw-content (read-file-string filepath))
-                                    (title (extract-title lines file-str))
-                                    (url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html")))
-                                    (clean-snippet (clean-and-sanitize raw-content)))
-                               (set! entries
-                                 (cons `((title . ,title)
-                                         (category . ,cat-str)
-                                         (url . ,url)
-                                         (content . ,clean-snippet))
-                                       entries))
-                               (printf "Indexado com sucesso: ~a~n" title))))))
-                     files)))))
-           cats)))
-      (else
-       (printf "Diretório 'md' não encontrado.~n")))
+                     (lambda (sub-file)
+                       (let* ((sub-file-str (if (symbol? sub-file) (symbol->string sub-file) sub-file))
+                              (filepath (string-append item-path "/" sub-file-str)))
+                         (when (and (file-regular? filepath) (string-suffix? ".md" sub-file-str))
+                           (let* ((lines (read-lines filepath))
+                                  (raw-content (read-file-string filepath))
+                                  (title (extract-title lines sub-file-str))
+                                  (url (string-append "/" item-str "/" (string-replace-ext sub-file-str ".md" ".html")))
+                                  (clean-snippet (clean-and-sanitize raw-content)))
+                             (set! entries
+                               (cons `((title . ,title)
+                                       (category . ,item-str)
+                                       (url . ,url)
+                                       (content . ,clean-snippet))
+                                     entries))
+                             (printf "Indexado (~a): ~a~n" item-str title)))))
+                     sub-files))))))
+          root-items)))
 
-    (printf "Total de ensaios válidos indexados: ~a~n" (length entries))
+    (printf "Total de ensaios e ficheiros indexados: ~a~n" (length entries))
 
-    ;; Escrever o search-index.json imaculado
+    ;; Escrever search-index.json
     (call-with-output-file "search-index.json"
       (lambda (p)
         (fprintf p "[\n")
@@ -109,7 +116,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n]\n"))
       'replace)
-    (printf "search-index.json gerado sem ruído de teste ou frontmatter.~n")))
+    (printf "search-index.json atualizado com todos os ficheiros Markdown (incluindo testes).~n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
@@ -117,19 +124,9 @@
     (and (>= len slen)
          (string=? suffix (substring str (- len slen) len)))))
 
-(define (string-contains? str sub)
-  (let ((slen (string-length str))
-        (sublen (string-length sub)))
-    (let loop ((i 0))
-      (cond
-        ((> (+ i sublen) slen) #f)
-        ((string=? (substring str i (+ i sublen)) sub) #t)
-        (else (loop (+ i 1)))))))
-
 (define (string-replace-ext str old new)
   (let ((len (string-length str)))
     (string-append (substring str 0 (- len (string-length old))) new)))
 
 (guard (con [else (begin (display "Erro fatal:\n") (print-condition con) (exit 255))])
   (generate-index))
- 
