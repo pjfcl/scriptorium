@@ -1,30 +1,12 @@
-name: Atualizar Índice (Chez Scheme)
-
-on:
-  push:
-    branches:
-      - main  # Ou master, conforme a tua branch principal
-    paths:
-      - 'md/**/*.md'  # Dispara apenas quando alteras ficheiros Markdown
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout do Código
-        uses: actions/checkout@v4
-
-      - name: Instalar Chez Scheme no Ambiente GitHub
-        run: sudo apt-get update && sudo apt-get install -y chezscheme
-
-      - name: Executar o Script Chez Scheme
+      - name: Executar o Script Chez Scheme (search)
         run: scheme --script generate_index.ss
 
-      - name: Publicar alterações no Repositório (Commit Automático)
+      - name: Publicar alterações no Repositório (Commit Forçado)
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add search-index.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-atualização do search-index.json via Chez Scheme [skip ci]" && git push)
+          # Verifica se há alterações pendentes; se houver, faz commit e push forçado para a branch main
+          git status
+          git diff --staged --quiet || git commit -m "Auto-atualização do search-index.json via Chez Scheme [skip ci]"
+          git push
