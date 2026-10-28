@@ -3,54 +3,54 @@
     "title": "teste.md",
     "category": "oficina",
     "url": "/oficina/teste.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": " "
   },
   {
     "title": "Critical Code Studies: O Código como Texto",
     "category": "oficina",
     "url": "/oficina/20261005_critical-code-studies.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": "--- title: 'Critical Code Studies: O Código como Texto' date: '2026-10-05' category: 'oficina' type: 'tecnica' summary: 'Reflexões sobre a leitura hermenêutica do código-fonte, arquiteturas minimalistas em Chez Scheme e a soberania tecnológica do artífice.' author: 'Paulo Lopes' ---  # Critical Code Studies: O Código como Texto  O código de computador não é apenas um conjunto de instruções utilitá"
   },
   {
     "title": "Cadernos da UAb: Auto-etnografia e Cultura Mediada",
     "category": "escola",
     "url": "/escola/20261010_caderno-uab-autoetnografia.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": "--- title: 'Cadernos da UAb: Auto-etnografia e Cultura Mediada' date: '2026-10-10' category: 'escola' type: 'apontamento' summary: 'Notas de investigação sobre métodos auto-etnográficos aplicados ao estudo dos média, suportes digitais e identidade do artífice contemporâneo.' author: 'Paulo Lopes' ---  # Cadernos da UAb: Auto-etnografia e Cultura Mediada  A investigação no âmbito dos estudos cultur"
   },
   {
     "title": "teste.md",
     "category": "escola",
     "url": "/escola/teste.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": " "
   },
   {
     "title": "teste.md",
     "category": "sobre",
     "url": "/sobre/teste.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": " "
   },
   {
     "title": "Agenda para Nómada Europeu de Esquerda",
     "category": "corpus",
     "url": "/corpus/20261022_nomada-europeu-de-esquerda.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": "--- title: 'Agenda para Nómada Europeu de Esquerda' date: '2026-10-22' category: 'colheita' type: 'ensaio' summary: 'Apontamentos e reflexões de itinerário sobre o pensamento crítico europeu, mobilidade territorial e o espaço político da margem ocidental.' author: 'Paulo Lopes' ---  # Agenda para Nómada Europeu de Esquerda  **= Novembro 2026 = Enjoy your trip!**  As redes de circulação e os itiner"
   },
   {
     "title": "A Arte é Social",
     "category": "corpus",
     "url": "/corpus/20261017_arte-e-social.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": "--- title: 'A Arte é Social' date: '2026-10-17' category: 'semente' type: 'citacao' summary: 'Reflexão em torno da inevitabilidade social da criação artística, mesmo quando situada num suposto isolamento.' author: 'Paulo Lopes' ---  # A Arte é Social  A arte, até quando cultivada num castelo de marfim, permanece intrinsecamente social. Não é possível, no seio de uma sociedade, produzir poesia ou p"
   },
   {
     "title": "Alguns Problemas das Redes Sociais",
     "category": "corpus",
     "url": "/corpus/20261016_alguns-problemas-das-redes-sociais.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": "--- title: 'Alguns Problemas das Redes Sociais' date: '2026-10-16' category: 'tintura' type: 'narrativa' summary: 'Uma leitura concetual sobre a alienação digital, os meios de produção cultural e o operário contemporâneo do ecrã.' author: 'Paulo Lopes' ---  # Alguns Problemas das Redes Sociais  As redes sociais são o espelho límpido e fraturado da sociedade atual. Hoje, o meio de produção cultural"
   },
   {
     "title": "teste para script (chez scheme) search-index.json",
     "category": "corpus",
     "url": "/corpus/teste.html",
-    "content": "Conteúdo indexado do Scriptorium"
+    "content": "# teste para script (chez scheme) search-index.json  tentativa 19   este é um teste "
   }
 ]
