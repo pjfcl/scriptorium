@@ -1,13 +1,11 @@
-;; Script Chez Scheme Definitivo para o Scriptorium (Com Conteúdo Real)
+;; Script Chez Scheme Final e Imaculado para o Scriptorium
 (import (chezscheme))
 
-;; Leitura segura do ficheiro inteiro em string
 (define (read-file-string filepath)
   (guard (con [else ""])
     (call-with-input-file filepath
       (lambda (p) (get-string-all p)))))
 
-;; Leitura de linhas para extrair o título H1 (# )
 (define (read-lines filepath)
   (guard (con [else '()])
     (call-with-input-file filepath
@@ -27,7 +25,7 @@
        (substring (car lst) 2 (string-length (car lst))))
       (else (loop (cdr lst))))))
 
-;; Limpa o conteúdo para formato JSON seguro (remove quebras de linha excessivas e aspas perigosas)
+;; Sanitiza e limpa para formato JSON seguro
 (define (sanitize-content raw-str)
   (let* ((max-len (min 400 (string-length raw-str)))
          (sub (substring raw-str 0 max-len))
@@ -43,7 +41,7 @@
     out))
 
 (define (generate-index)
-  (printf "A iniciar a extração real de conteúdos para o Scriptorium...~n")
+  (printf "A gerar índice de pesquisa soberano...~n")
   (let ((md-dir "md")
         (entries '()))
     (cond
@@ -59,8 +57,10 @@
                      (lambda (file)
                        (let* ((file-str (if (symbol? file) (symbol->string file) file))
                               (filepath (string-append cat-path "/" file-str)))
+                         ;; FILTRO CRUCIAL: Ignorar ficheiros de teste e garantir que são .md
                          (when (and (file-regular? filepath)
-                                    (string-suffix? ".md" file-str))
+                                    (string-suffix? ".md" file-str)
+                                    (not (string-prefix? "teste" file-str)))
                            (guard (err [else (printf "Aviso ao processar ~a~n" filepath)])
                              (let* ((lines (read-lines filepath))
                                     (raw-content (read-file-string filepath))
@@ -73,15 +73,15 @@
                                          (url . ,url)
                                          (content . ,clean-snippet))
                                        entries))
-                               (printf "Indexado com conteúdo real: ~a (~a)~n" title file-str))))))
+                               (printf "Indexado com sucesso: ~a~n" title))))))
                      files)))))
            cats)))
       (else
-       (printf "Aviso: Diretório 'md' não encontrado!~n")))
+       (printf "Diretório 'md' não encontrado.~n")))
 
-    (printf "Total de artigos com conteúdo indexado: ~a~n" (length entries))
+    (printf "Total de ensaios válidos indexados: ~a~n" (length entries))
 
-    ;; Escrever o search-index.json formatado com os dados reais
+    ;; Escrever o search-index.json limpo
     (call-with-output-file "search-index.json"
       (lambda (p)
         (fprintf p "[\n")
@@ -97,7 +97,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n]\n"))
       'replace)
-    (printf "search-index.json gerado com sucesso soberano e conteúdo real incorporado.~n")))
+    (printf "search-index.json atualizado com exclusão de testes.~n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
@@ -105,10 +105,15 @@
     (and (>= len slen)
          (string=? suffix (substring str (- len slen) len)))))
 
+(define (string-prefix? prefix str)
+  (let ((plen (string-length prefix))
+        (len (string-length str)))
+    (and (>= len plen)
+         (string=? prefix (substring str 0 plen)))))
+
 (define (string-replace-ext str old new)
   (let ((len (string-length str)))
     (string-append (substring str 0 (- len (string-length old))) new)))
 
-;; Execução protegida
-(guard (con [else (begin (display "Erro fatal no script Scheme:\n") (print-condition con) (exit 255))])
+(guard (con [else (begin (display "Erro fatal:\n") (print-condition con) (exit 255))])
   (generate-index))
