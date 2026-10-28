@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor SPA Blindado (app.js)
+   PAULOLOPES.ORG / SCRIPTORIUM DIGITAL — Motor SPA Blindado com Pesquisa (app.js)
    Soberania Digital, Humanidades & Arquitetura Estática
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
@@ -25,7 +25,6 @@ function parseMarkdown(text) {
  */
 function resolverUrl(path) {
     if (!path) return '';
-    // Se já começa com http ou barra, limpa ou usa direto
     if (path.startsWith('http')) return path;
     const clean = path.startsWith('/') ? path.substring(1) : path;
     return './' + clean;
@@ -58,8 +57,6 @@ async function carregarTodosArtigos() {
                         meta: parsed.meta,
                         content: parsed.content
                     });
-                } else {
-                    console.warn(`[Scriptorium] Aviso: Não foi possível ler ${articleUrl} (HTTP ${res.status})`);
                 }
             } catch (e) {
                 console.error(`[Scriptorium] Erro ao aceder ao artigo ${item.path}:`, e);
@@ -78,7 +75,7 @@ async function renderizarCapa(artigos) {
     if (!container) return;
 
     if (artigos.length === 0) {
-        container.innerHTML = `<p class="font-mono" style="font-size: 0.85rem; color: var(--accent-color);">Nenhum registo encontrado no Scriptorium. (Verifique a consola F12 para detalhes de fetch)</p>`;
+        container.innerHTML = `<p class="font-mono" style="font-size: 0.85rem; color: var(--accent-color);">Nenhum registo encontrado no Scriptorium.</p>`;
         return;
     }
 
@@ -101,15 +98,100 @@ async function renderizarCapa(artigos) {
     container.innerHTML = htmlOutput;
 }
 
+/**
+ * Motor de Pesquisa baseado no search-index.json gerado por Chez Scheme
+ */
+async function executarPesquisa(termo) {
+    const viewHome = document.getElementById('view-home');
+    const viewContent = document.getElementById('view-content');
+    
+    viewHome.style.display = 'none';
+    viewContent.style.display = 'block';
+
+    viewContent.innerHTML = `
+        <div class="breadcrumb" style="margin-bottom: 20px;">
+            <a href="index.html">Início</a> / <span>Pesquisa</span>
+        </div>
+        <h2 class="font-sans" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-color); margin-top: 0; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            Resultados para: "${termo}"
+        </h2>
+        <div id="resultados-pesquisa">
+            <p class="font-mono" style="font-size: 0.85rem; color: var(--muted-color);">A consultar o índice do Chez Scheme...</p>
+        </div>
+    `;
+
+    try {
+        const res = await fetch(resolverUrl('search-index.json'));
+        if (!res.ok) throw new Error("Não foi possível carregar o índice de pesquisa.");
+        
+        const indexData = await res.json();
+        const termoLower = termo.toLowerCase();
+
+        const filtrados = indexData.filter(item => {
+            const titulo = (item.title || "").toLowerCase();
+            const conteudo = (item.content || "").toLowerCase();
+            return titulo.includes(termoLower) || conteudo.includes(termoLower);
+        });
+
+        const containerResultados = document.getElementById('resultados-pesquisa');
+        if (!containerResultados) return;
+
+        if (filtrados.length === 0) {
+            containerResultados.innerHTML = `
+                <p class="font-mono" style="font-size: 0.85rem; color: var(--accent-color);">Nenhum ensaio ou registo encontrado com o termo "<strong>${termo}</strong>".</p>
+                <div style="margin-top: 30px;">
+                    <a href="index.html" class="font-mono" style="font-size: 0.82rem; color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
+                </div>
+            `;
+            return;
+        }
+
+        let htmlOutput = '';
+        filtrados.forEach(item => {
+            htmlOutput += `
+                <a href="index.html${item.url.replace('.html', '')}" class="entry-card-link" style="display:none"> <!-- compatibilidade -->
+                <a href="index.html?artigo=${item.url.split('/').pop().replace('.html', '')}" class="entry-card-link">
+                    <div class="entry-card">
+                        <span class="entry-meta">${item.category.toUpperCase()}</span>
+                        <h3>${item.title}</h3>
+                        <p style="font-size: 0.9rem; color: var(--muted-color);">${item.content.substring(0, 160)}...</p>
+                    </div>
+                </a>
+            `;
+        });
+
+        htmlOutput += `
+            <div style="margin-top: 45px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <a href="index.html" class="font-mono" style="font-size: 0.82rem; color: var(--accent-color); text-decoration: none; font-weight: 600;">&larr; Voltar ao Início</a>
+            </div>
+        `;
+
+        containerResultados.innerHTML = htmlOutput;
+
+    } catch (e) {
+        console.error("[Scriptorium] Erro na pesquisa:", e);
+        document.getElementById('resultados-pesquisa').innerHTML = `
+            <p class="font-mono" style="font-size: 0.85rem; color: var(--accent-color);">Erro ao processar o índice de pesquisa.</p>
+        `;
+    }
+}
+
 async function router() {
     const urlParams = new URLSearchParams(window.location.search);
     const seccaoParam = urlParams.get('seccao');
     const artigoParam = urlParams.get('artigo');
+    const qParam = urlParams.get('q');
 
     const viewHome = document.getElementById('view-home');
     const viewContent = document.getElementById('view-content');
 
     if (!viewHome || !viewContent) return;
+
+    // SE HOUVER PESQUISA (?q=termo)
+    if (qParam) {
+        await executarPesquisa(qParam.trim());
+        return;
+    }
 
     const artigos = await carregarTodosArtigos();
 
