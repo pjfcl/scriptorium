@@ -1,4 +1,4 @@
-;; Script Chez Scheme Robusto para o Scriptorium
+;; Script Chez Scheme Avançado para o Scriptorium (Extração de Frontmatter YAML)
 (import (chezscheme))
 
 (define (safe-read-file filepath)
@@ -6,8 +6,43 @@
     (call-with-input-file filepath
       (lambda (p) (get-string-all p)))))
 
+;; Função para extrair o título real do frontmatter YAML (ex: title: "...")
+(define (extract-title content fallback-name)
+  (let ((lines (let loop ((s content) (acc '()))
+                 (cond
+                   ((string=? s "") (reverse acc))
+                   ((string-index s #\newline) =>
+                    (lambda (i)
+                      (loop (substring s (+ i 1) (string-length s))
+                            (cons (substring s 0 i) acc))))
+                   (else (reverse (cons s acc)))))))
+    (let find-title ((lst lines))
+      (cond
+        ((null? lst) fallback-name)
+        ((and (> (string-length (car lst)) 7)
+              (string=? (substring (car lst) 0 6) "title:"))
+         ;; Limpar as aspas do título se existirem
+         (let* ((raw (substring (car lst) 6 (string-length (car lst))))
+                (trimmed (string-trim raw)))
+           (if (and (> (string-length trimmed) 1)
+                    (char=? (string-ref trimmed 0) #\"))
+               (substring trimmed 1 (- (string-length trimmed) 1))
+               trimmed)))
+        (else (find-title (cdr lst)))))))
+
+(define (string-trim str)
+  (let ((len (string-length str)))
+    (let skip-left ((i 0))
+      (if (>= i len) ""
+          (if (char-whitespace? (string-ref str i))
+              (skip-left (+ i 1))
+              (let skip-right ((j (- len 1)))
+                (if (< j i) ""
+                    (if (char-whitespace? (string-ref str j))
+                        (skip-right (- j 1))
+                        (substring str i (+ j 1))))))))))
+
 (define (generate-search-index)
-  (printf "Iniciando a geração do índice de pesquisa...~n")
   (let ((md-dir "md")
         (index-entries '()))
     (cond
@@ -23,44 +58,46 @@
                      (lambda (file)
                        (let* ((file-str (if (symbol? file) (symbol->string file) file))
                               (filepath (string-append cat-path "/" file-str)))
+                         ;; Ignorar ficheiros de teste e garantir que são .md
                          (when (and (file-regular? filepath)
-                                    (string-suffix? ".md" file-str))
+                                    (string-suffix? ".md" file-str)
+                                    (not (string-prefix? "teste" file-str)))
                            (let* ((content (safe-read-file filepath))
-                                  (clean-content (if content content "")))
-                             (let* ((url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html")))
-                                    (snippet (substring clean-content 0 (min 200 (string-length clean-content)))))
-                               (set! index-entries
-                                 (cons `((title . ,file-str)
-                                         (category . ,cat-str)
-                                         (url . ,url)
-                                         (content . ,snippet))
-                                       index-entries))
-                             (printf "Processado: ~a/~a~n" cat-str file-str))))))
+                                  (clean-content (if content content ""))
+                                  (real-title (extract-title clean-content file-str))
+                                  (url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html")))
+                                  (snippet (substring clean-content 0 (min 250 (string-length clean-content)))))
+                             (set! index-entries
+                               (cons `((title . ,real-title)
+                                       (category . ,cat-str)
+                                       (url . ,url)
+                                       (content . ,snippet))
+                                     index-entries))
+                             (printf "Indexado: ~a (~a)~n" real-title file-str)))))
                      files)))))
            cats)))
       (else
-       (printf "Aviso: Diretório 'md' não encontrado na raiz!~n")))
+       (printf "Aviso: Diretório 'md' não encontrado!~n")))
 
-    (printf "Total de ensaios indexados: ~a~n" (length index-entries))
+    (printf "Total de ensaios válidos indexados: ~a~n" (length index-entries))
 
-    ;; Escrever o ficheiro search-index.json de forma segura
-    (guard (con [else (begin (display "Erro ao escrever o ficheiro JSON\n") (exit 1))])
-      (call-with-output-file "search-index.json"
-        (lambda (p)
-          (fprintf p "[\n")
-          (let loop ((entries index-entries) (first? #t))
-            (unless (null? entries)
-              (let ((entry (car entries)))
-                (unless first? (fprintf p ",\n"))
-                (fprintf p "  {\n    \"title\": ~s,\n    \"category\": ~s,\n    \"url\": ~s,\n    \"content\": ~s\n  }"
-                         (cdr (assoc 'title entry))
-                         (cdr (assoc 'category entry))
-                         (cdr (assoc 'url entry))
-                         (cdr (assoc 'content entry))))
-              (loop (cdr entries) #f)))
-          (fprintf p "\n]\n"))
-        'replace))
-    (printf "search-index.json gerado com sucesso soberano.~n")))
+    ;; Escrever o ficheiro search-index.json limpo
+    (call-with-output-file "search-index.json"
+      (lambda (p)
+        (fprintf p "[\n")
+        (let loop ((entries index-entries) (first? #t))
+          (unless (null? entries)
+            (let ((entry (car entries)))
+              (unless first? (fprintf p ",\n"))
+              (fprintf p "  {\n    \"title\": ~s,\n    \"category\": ~s,\n    \"url\": ~s,\n    \"content\": ~s\n  }"
+                       (cdr (assoc 'title entry))
+                       (cdr (assoc 'category entry))
+                       (cdr (assoc 'url entry))
+                       (cdr (assoc 'content entry))))
+            (loop (cdr entries) #f)))
+        (fprintf p "\n]\n"))
+      'replace)
+    (printf "search-index.json atualizado com sucesso e títulos extraídos.~n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
@@ -68,10 +105,16 @@
     (and (>= len slen)
          (string=? suffix (substring str (- len slen) len)))))
 
+(define (string-prefix? prefix str)
+  (let ((plen (string-length prefix))
+        (len (string-length str)))
+    (and (>= len plen)
+         (string=? prefix (substring str 0 plen)))))
+
 (define (string-replace-ext str old-ext new-ext)
   (let ((len (string-length str)))
     (string-append (substring str 0 (- len (string-length old-ext))) new-ext)))
 
 ;; Execução protegida
-(guard (con [else (begin (display "Erro fatal na execução do script Scheme:\n") (print-condition con) (exit 255))])
+(guard (con [else (begin (display "Erro na execução do script Scheme:\n") (print-condition con) (exit 255))])
   (generate-search-index))
