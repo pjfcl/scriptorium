@@ -1,4 +1,4 @@
-;; Script Chez Scheme Final e Imaculado para o Scriptorium
+;; Script Chez Scheme Definitivo e Limpo para o Scriptorium
 (import (chezscheme))
 
 (define (read-file-string filepath)
@@ -25,10 +25,22 @@
        (substring (car lst) 2 (string-length (car lst))))
       (else (loop (cdr lst))))))
 
-;; Sanitiza e limpa para formato JSON seguro
-(define (sanitize-content raw-str)
-  (let* ((max-len (min 400 (string-length raw-str)))
-         (sub (substring raw-str 0 max-len))
+;; Remove o bloco de frontmatter YAML (se existir entre '---' e '---') e limpa para JSON seguro
+(define (clean-and-sanitize raw-str)
+  (let* ((len (string-length raw-str))
+         ;; Verificar se começa com "---" para saltar o frontmatter
+         (start-idx (if (and (>= len 3) (string=? (substring raw-str 0 3) "---"))
+                        (let find-end车 ((i 3))
+                          (cond
+                            ((> (+ i 3) len) 0)
+                            ((string=? (substring raw-str i (+ i 3)) "---") (+ i 3))
+                            (else (find-end车 (+ i 1)))))
+                        0))
+         (body-str (if (> start-idx 0)
+                       (substring raw-str start-idx len)
+                       raw-str))
+         (max-len (min 400 (string-length body-str)))
+         (sub (substring body-str 0 max-len))
          (out (let loop ((i 0) (acc '()))
                 (if (= i (string-length sub))
                     (list->string (reverse acc))
@@ -41,7 +53,7 @@
     out))
 
 (define (generate-index)
-  (printf "A gerar índice de pesquisa soberano...~n")
+  (printf "A gerar índice de pesquisa soberano (sem testes e sem YAML)...~n")
   (let ((md-dir "md")
         (entries '()))
     (cond
@@ -57,16 +69,16 @@
                      (lambda (file)
                        (let* ((file-str (if (symbol? file) (symbol->string file) file))
                               (filepath (string-append cat-path "/" file-str)))
-                         ;; FILTRO CRUCIAL: Ignorar ficheiros de teste e garantir que são .md
+                         ;; FILTRO RIGOROSO: Ignorar qualquer ficheiro que contenha 'teste' ou não seja .md
                          (when (and (file-regular? filepath)
                                     (string-suffix? ".md" file-str)
-                                    (not (string-prefix? "teste" file-str)))
+                                    (not (string-contains? file-str "teste")))
                            (guard (err [else (printf "Aviso ao processar ~a~n" filepath)])
                              (let* ((lines (read-lines filepath))
                                     (raw-content (read-file-string filepath))
                                     (title (extract-title lines file-str))
                                     (url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html")))
-                                    (clean-snippet (sanitize-content raw-content)))
+                                    (clean-snippet (clean-and-sanitize raw-content)))
                                (set! entries
                                  (cons `((title . ,title)
                                          (category . ,cat-str)
@@ -81,7 +93,7 @@
 
     (printf "Total de ensaios válidos indexados: ~a~n" (length entries))
 
-    ;; Escrever o search-index.json limpo
+    ;; Escrever o search-index.json imaculado
     (call-with-output-file "search-index.json"
       (lambda (p)
         (fprintf p "[\n")
@@ -97,7 +109,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n]\n"))
       'replace)
-    (printf "search-index.json atualizado com exclusão de testes.~n")))
+    (printf "search-index.json gerado sem ruído de teste ou frontmatter.~n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
@@ -105,11 +117,14 @@
     (and (>= len slen)
          (string=? suffix (substring str (- len slen) len)))))
 
-(define (string-prefix? prefix str)
-  (let ((plen (string-length prefix))
-        (len (string-length str)))
-    (and (>= len plen)
-         (string=? prefix (substring str 0 plen)))))
+(define (string-contains? str sub)
+  (let ((slen (string-length str))
+        (sublen (string-length sub)))
+    (let loop ((i 0))
+      (cond
+        ((> (+ i sublen) slen) #f)
+        ((string=? (substring str i (+ i sublen)) sub) #t)
+        (else (loop (+ i 1)))))))
 
 (define (string-replace-ext str old new)
   (let ((len (string-length str)))
@@ -117,3 +132,4 @@
 
 (guard (con [else (begin (display "Erro fatal:\n") (print-condition con) (exit 255))])
   (generate-index))
+ 
