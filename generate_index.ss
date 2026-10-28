@@ -1,7 +1,13 @@
-;; Script Chez Scheme com Diagnóstico e Tratamento de Erros para o Scriptorium
+;; Script Chez Scheme Definitivo para o Scriptorium (Com Conteúdo Real)
 (import (chezscheme))
 
-;; Leitura segura de linhas de um ficheiro
+;; Leitura segura do ficheiro inteiro em string
+(define (read-file-string filepath)
+  (guard (con [else ""])
+    (call-with-input-file filepath
+      (lambda (p) (get-string-all p)))))
+
+;; Leitura de linhas para extrair o título H1 (# )
 (define (read-lines filepath)
   (guard (con [else '()])
     (call-with-input-file filepath
@@ -11,7 +17,6 @@
               (reverse acc)
               (loop (get-line p) (cons line acc))))))))
 
-;; Extração ultra-segura do título (evita erros de índice em linhas curtas)
 (define (extract-title lines fallback)
   (let loop ((lst lines))
     (cond
@@ -22,8 +27,23 @@
        (substring (car lst) 2 (string-length (car lst))))
       (else (loop (cdr lst))))))
 
+;; Limpa o conteúdo para formato JSON seguro (remove quebras de linha excessivas e aspas perigosas)
+(define (sanitize-content raw-str)
+  (let* ((max-len (min 400 (string-length raw-str)))
+         (sub (substring raw-str 0 max-len))
+         (out (let loop ((i 0) (acc '()))
+                (if (= i (string-length sub))
+                    (list->string (reverse acc))
+                    (let ((c (string-ref sub i)))
+                      (cond
+                        ((char=? c #\newline) (loop (+ i 1) (cons #\space acc)))
+                        ((char=? c #\return) (loop (+ i 1) acc))
+                        ((char=? c #\") (loop (+ i 1) (cons #\' acc)))
+                        (else (loop (+ i 1) (cons c acc)))))))))
+    out))
+
 (define (generate-index)
-  (printf "A iniciar a varredura das pastas Markdown...~n")
+  (printf "A iniciar a extração real de conteúdos para o Scriptorium...~n")
   (let ((md-dir "md")
         (entries '()))
     (cond
@@ -41,25 +61,27 @@
                               (filepath (string-append cat-path "/" file-str)))
                          (when (and (file-regular? filepath)
                                     (string-suffix? ".md" file-str))
-                           (guard (err [else (printf "Aviso ao processar o ficheiro ~a: erro ignorado~n" filepath)])
+                           (guard (err [else (printf "Aviso ao processar ~a~n" filepath)])
                              (let* ((lines (read-lines filepath))
+                                    (raw-content (read-file-string filepath))
                                     (title (extract-title lines file-str))
-                                    (url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html"))))
+                                    (url (string-append "/" cat-str "/" (string-replace-ext file-str ".md" ".html")))
+                                    (clean-snippet (sanitize-content raw-content)))
                                (set! entries
                                  (cons `((title . ,title)
                                          (category . ,cat-str)
                                          (url . ,url)
-                                         (content . "Conteúdo indexado do Scriptorium"))
+                                         (content . ,clean-snippet))
                                        entries))
-                               (printf "Indexado: ~a (~a)~n" title file-str))))))
+                               (printf "Indexado com conteúdo real: ~a (~a)~n" title file-str))))))
                      files)))))
            cats)))
       (else
        (printf "Aviso: Diretório 'md' não encontrado!~n")))
 
-    (printf "Total de artigos indexados com sucesso: ~a~n" (length entries))
+    (printf "Total de artigos com conteúdo indexado: ~a~n" (length entries))
 
-    ;; Escrever o search-index.json
+    ;; Escrever o search-index.json formatado com os dados reais
     (call-with-output-file "search-index.json"
       (lambda (p)
         (fprintf p "[\n")
@@ -75,7 +97,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n]\n"))
       'replace)
-    (printf "search-index.json gerado com sucesso soberano.~n")))
+    (printf "search-index.json gerado com sucesso soberano e conteúdo real incorporado.~n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
@@ -87,11 +109,6 @@
   (let ((len (string-length str)))
     (string-append (substring str 0 (- len (string-length old))) new)))
 
-;; Bloco principal protegido que imprime o erro exato se algo falhar
-(guard (con [else (begin
-                    (display "========================================\n")
-                    (display "ERRO FATAL DETETADO NO SCRIPT SCHEME:\n")
-                    (display-condition con)
-                    (display "\n========================================\n")
-                    (exit 1))])
+;; Execução protegida
+(guard (con [else (begin (display "Erro fatal no script Scheme:\n") (print-condition con) (exit 255))])
   (generate-index))
