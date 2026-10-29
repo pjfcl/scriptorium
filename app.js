@@ -80,53 +80,39 @@ async function renderizarCapa(artigos) {
         return;
     }
 
-    // Classificar e agrupar artigos pelas secções editoriais:
+    // Filtrar estritamente o ÚLTIMO artigo de cada categoria/secção
     const sementes = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'semente' || (a.meta.category || '').toLowerCase() === 'semente');
-    const colheitas = artigos.filter(a => a.section === 'corpus' && !sementes.includes(a));
+    const colheitas = artigos.filter(a => a.section === 'corpus' && (a.meta.type || '').toLowerCase() !== 'semente' && (a.meta.type || '').toLowerCase() !== 'tintura');
     const tinturas = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'tintura');
     const escola = artigos.filter(a => a.section === 'escola');
     const oficina = artigos.filter(a => a.section === 'oficina');
     const sobre = artigos.filter(a => a.section === 'sobre');
 
+    const ultimosArtigos = [
+        sementes[0],
+        colheitas[0],
+        tinturas[0],
+        escola[0],
+        oficina[0],
+        sobre[0]
+    ].filter(Boolean); // Remove undefined caso alguma secção esteja vazia
+
     let htmlOutput = '';
 
-    function renderSeccaoBloco(tituloSecao, listaArtigos, descricaoSecao = '') {
-        if (listaArtigos.length === 0) return '';
+    ultimosArtigos.forEach(artigo => {
+        const linkUrl = `index.html?artigo=${artigo.slug}`;
+        const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         
-        let blocoHtml = `
-            <div style="margin-bottom: 40px;">
-                <h3 class="font-sans" style="font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 15px;">
-                    ${tituloSecao}
-                </h3>
-                ${descricaoSecao ? `<p style="font-size: 0.9rem; color: var(--muted-color); margin-bottom: 15px;">${descricaoSecao}</p>` : ''}
+        htmlOutput += `
+            <a href="${linkUrl}" class="entry-card-link">
+                <div class="entry-card">
+                    <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
+                    <h3>${artigo.meta.title || 'Sem título'}</h3>
+                    <p>${artigo.meta.summary || ''}</p>
+                </div>
+            </a>
         `;
-
-        listaArtigos.slice(0, 3).forEach(artigo => {
-            const linkUrl = `index.html?artigo=${artigo.slug}`;
-            const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
-            
-            blocoHtml += `
-                <a href="${linkUrl}" class="entry-card-link">
-                    <div class="entry-card">
-                        <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
-                        <h3>${artigo.meta.title || 'Sem título'}</h3>
-                        <p>${artigo.meta.summary || ''}</p>
-                    </div>
-                </a>
-            `;
-        });
-
-        blocoHtml += `</div>`;
-        return blocoHtml;
-    }
-
-    // Renderizar ordenadamente as secções editoriais
-    htmlOutput += renderSeccaoBloco('Sementes (Notas & Citações)', sementes, 'Fragmentos e apontamentos breves recolhidos no percurso.');
-    htmlOutput += renderSeccaoBloco('Colheitas (Ensaios & Leituras)', colheitas, 'Textos estruturados e reflexões críticas aprofundadas.');
-    htmlOutput += renderSeccaoBloco('Tinturas (Ficção & Narrativas)', tinturas, 'Exercícios literários e registos narrativos experimentais.');
-    htmlOutput += renderSeccaoBloco('Escola (Investigação & UAb)', escola, 'Cadernos académicos, auto-etnografia e estudos culturais.');
-    htmlOutput += renderSeccaoBloco('Oficina (Humanidades Digitais & Código)', oficina, 'Critical Code Studies, Chez Scheme e soberania tecnológica.');
-    htmlOutput += renderSeccaoBloco('Sobre (Manifesto & Protocolo)', sobre, 'Fundamentos teóricos, método P.A.R.T.E. e o artífice.');
+    });
 
     container.innerHTML = htmlOutput;
 }
