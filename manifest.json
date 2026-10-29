@@ -1,6 +1,11 @@
 {
   "artigos": [
     {
+      "path": "/md/sobre/20261029_new.md",
+      "section": "sobre",
+      "slug": "20261029_new"
+    },
+    {
       "path": "/md/corpus/20261017_arte-e-social.md",
       "section": "corpus",
       "slug": "20261017_arte-e-social"
