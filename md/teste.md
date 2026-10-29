@@ -1,2 +1,2 @@
 teste md tentativa 1
-testar manifest.md 6
+testar manifest.md 7
