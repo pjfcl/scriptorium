@@ -1,4 +1,4 @@
-;; Script Chez Scheme Absolutamente Limpo e Simples para generate_manifest.ss
+;; Script Chez Scheme Definitivo para generate_manifest.ss
 ;; Scriptorium Digital - paulolopes.org
 (import (chezscheme))
 
@@ -49,10 +49,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n  ]\n}\n"))
       'replace)
-    (printf "manifest.json gerado com sucesso!\n"))
+    (printf "manifest.json gerado com sucesso!\n")))
 
-(define (safe-run)
-  (guard (con [else (begin (display "Erro fatal no manifesto:\n") (print-condition con) (exit 255))])
-    (generate-manifest)))
-
-(safe-run)
+(guard (con [else (begin (display "Erro fatal capturado no manifesto.\n") (exit 255))])
+  (generate-manifest))
