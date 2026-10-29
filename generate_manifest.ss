@@ -1,12 +1,12 @@
-;; Script Chez Scheme para Geração Automática do manifest.json do Scriptorium
+;; Script Chez Scheme Definitivo para Geração Automática do manifest.json
 (import (chezscheme))
 
 (define (generate-manifest)
-  (printf "A gerar o manifest.json dinamicamente a partir da árvore de Markdown...~n")
+  (printf "A gerar o manifest.json soberano via Chez Scheme...~n")
   (let ((md-dir "md")
-        (manifest-entries '()))
+        (entries '()))
     (when (file-directory? md-dir)
-      (let ((categories (directory-list md-dir)))
+      (let ((cats (directory-list md-dir)))
         (for-each
           (lambda (cat)
             (let* ((cat-str (if (symbol? cat) (symbol->string cat) cat))
@@ -22,20 +22,20 @@
                                    (not (string-contains? file-str "teste")))
                           (let* ((slug (string-replace-ext file-str ".md" ""))
                                  (path (string-append "/" cat-path "/" file-str)))
-                            (set! manifest-entries
+                            (set! entries
                               (cons `((path . ,path)
                                       (section . ,cat-str)
                                       (slug . ,slug))
-                                    manifest-entries))
-                            (printf "Adicionado ao manifesto: [~a] ~a~n" cat-str slug))))))
+                                    entries))
+                            (printf "Artigo detetado para manifesto: [~a] ~a~n" cat-str slug))))))
                     files)))))
-          categories)))
+          cats)))
 
-    ;; Escrever o ficheiro manifest.json formatado
+    ;; Escrever o manifest.json formatado
     (call-with-output-file "manifest.json"
       (lambda (p)
         (fprintf p "{\n  \"artigos\": [\n")
-        (let loop ((lst manifest-entries) (first? #t))
+        (let loop ((lst entries) (first? #t))
           (unless (null? lst)
             (let ((entry (car lst)))
               (unless first? (fprintf p ",\n"))
@@ -46,7 +46,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n  ]\n}\n"))
       'replace)
-    (printf "manifest.json gerado com sucesso soberano em Chez Scheme!~n")))
+    (printf "manifest.json gerado com sucesso!~n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
