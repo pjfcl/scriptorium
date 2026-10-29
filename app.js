@@ -66,6 +66,7 @@ async function carregarTodosArtigos() {
         console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
+    // Ordenar por data decrescente
     artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
     return artigos;
 }
@@ -79,21 +80,53 @@ async function renderizarCapa(artigos) {
         return;
     }
 
+    // Classificar e agrupar artigos pelas secções editoriais:
+    const sementes = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'semente' || (a.meta.category || '').toLowerCase() === 'semente');
+    const colheitas = artigos.filter(a => a.section === 'corpus' && !sementes.includes(a));
+    const tinturas = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'tintura');
+    const escola = artigos.filter(a => a.section === 'escola');
+    const oficina = artigos.filter(a => a.section === 'oficina');
+    const sobre = artigos.filter(a => a.section === 'sobre');
+
     let htmlOutput = '';
-    artigos.slice(0, 5).forEach(artigo => {
-        const linkUrl = `index.html?artigo=${artigo.slug}`;
-        const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
+
+    function renderSeccaoBloco(tituloSecao, listaArtigos, descricaoSecao = '') {
+        if (listaArtigos.length === 0) return '';
         
-        htmlOutput += `
-            <a href="${linkUrl}" class="entry-card-link">
-                <div class="entry-card">
-                    <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
-                    <h3>${artigo.meta.title || 'Sem título'}</h3>
-                    <p>${artigo.meta.summary || ''}</p>
-                </div>
-            </a>
+        let blocoHtml = `
+            <div style="margin-bottom: 40px;">
+                <h3 class="font-sans" style="font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 15px;">
+                    ${tituloSecao}
+                </h3>
+                ${descricaoSecao ? `<p style="font-size: 0.9rem; color: var(--muted-color); margin-bottom: 15px;">${descricaoSecao}</p>` : ''}
         `;
-    });
+
+        listaArtigos.slice(0, 3).forEach(artigo => {
+            const linkUrl = `index.html?artigo=${artigo.slug}`;
+            const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
+            
+            blocoHtml += `
+                <a href="${linkUrl}" class="entry-card-link">
+                    <div class="entry-card">
+                        <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
+                        <h3>${artigo.meta.title || 'Sem título'}</h3>
+                        <p>${artigo.meta.summary || ''}</p>
+                    </div>
+                </a>
+            `;
+        });
+
+        blocoHtml += `</div>`;
+        return blocoHtml;
+    }
+
+    // Renderizar ordenadamente as secções editoriais
+    htmlOutput += renderSeccaoBloco('Sementes (Notas & Citações)', sementes, 'Fragmentos e apontamentos breves recolhidos no percurso.');
+    htmlOutput += renderSeccaoBloco('Colheitas (Ensaios & Leituras)', colheitas, 'Textos estruturados e reflexões críticas aprofundadas.');
+    htmlOutput += renderSeccaoBloco('Tinturas (Ficção & Narrativas)', tinturas, 'Exercícios literários e registos narrativos experimentais.');
+    htmlOutput += renderSeccaoBloco('Escola (Investigação & UAb)', escola, 'Cadernos académicos, auto-etnografia e estudos culturais.');
+    htmlOutput += renderSeccaoBloco('Oficina (Humanidades Digitais & Código)', oficina, 'Critical Code Studies, Chez Scheme e soberania tecnológica.');
+    htmlOutput += renderSeccaoBloco('Sobre (Manifesto & Protocolo)', sobre, 'Fundamentos teóricos, método P.A.R.T.E. e o artífice.');
 
     container.innerHTML = htmlOutput;
 }
@@ -149,7 +182,6 @@ async function executarPesquisa(termo) {
         let htmlOutput = '';
         filtrados.forEach(item => {
             htmlOutput += `
-                <a href="index.html${item.url.replace('.html', '')}" class="entry-card-link" style="display:none"> <!-- compatibilidade -->
                 <a href="index.html?artigo=${item.url.split('/').pop().replace('.html', '')}" class="entry-card-link">
                     <div class="entry-card">
                         <span class="entry-meta">${item.category.toUpperCase()}</span>
@@ -187,7 +219,6 @@ async function router() {
 
     if (!viewHome || !viewContent) return;
 
-    // SE HOUVER PESQUISA (?q=termo)
     if (qParam) {
         await executarPesquisa(qParam.trim());
         return;
@@ -195,7 +226,6 @@ async function router() {
 
     const artigos = await carregarTodosArtigos();
 
-    // LEITURA DE ARTIGO INDIVIDUAL (?artigo=slug)
     if (artigoParam) {
         viewHome.style.display = 'none';
         viewContent.style.display = 'block';
@@ -230,7 +260,6 @@ async function router() {
         return;
     }
 
-    // LISTAGEM DE SECÇÃO (?seccao=nome)
     if (seccaoParam) {
         viewHome.style.display = 'none';
         viewContent.style.display = 'block';
@@ -273,7 +302,6 @@ async function router() {
         return;
     }
 
-    // VISTA DE CAPA PADRÃO
     viewHome.style.display = 'block';
     viewContent.style.display = 'none';
     await renderizarCapa(artigos);
