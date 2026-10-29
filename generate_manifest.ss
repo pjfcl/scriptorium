@@ -49,7 +49,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n  ]\n}\n"))
       'replace)
-    (printf "manifest.json gerado com sucesso!\n")))
+    (printf "manifest.json gerado com sucesso!\n"))
 
 (guard (con [else (begin (display "Erro fatal capturado no manifesto.\n") (exit 255))])
   (generate-manifest))
