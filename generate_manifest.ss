@@ -1,4 +1,4 @@
-;; Script Chez Scheme Definitivo para Geração Automática do manifest.json
+;; Script Chez Scheme Blindado para Geração Automática do manifest.json
 ;; Scriptorium Digital — paulolopes.org
 (import (chezscheme))
 
@@ -7,30 +7,31 @@
   (let ((md-dir "md")
         (entries '()))
     (when (file-directory? md-dir)
-      (let ((cats (directory-list md-dir)))
+      (let ((root-items (directory-list md-dir)))
         (for-each
-          (lambda (cat)
-            (let* ((cat-str (if (symbol? cat) (symbol->string cat) cat))
-                   (cat-path (string-append md-dir "/" cat-str)))
-              (when (file-directory? cat-path)
-                (let ((files (directory-list cat-path)))
+          (lambda (item)
+            (let* ((item-str (if (symbol? item) (symbol->string item) item))
+                   (item-path (string-append md-dir "/" item-str)))
+              ;; Processa APENAS se for um diretório válido (corpus, escola, oficina, sobre)
+              (when (file-directory? item-path)
+                (let ((sub-files (directory-list item-path)))
                   (for-each
-                    (lambda (file)
-                      (let* ((file-str (if (symbol? file) (symbol->string file) file))
-                             (filepath (string-append cat-path "/" file-str)))
+                    (lambda (sub-file)
+                      (let* ((sub-file-str (if (symbol? sub-file) (symbol->string sub-file) sub-file))
+                             (filepath (string-append item-path "/" sub-file-str)))
                         (when (and (file-regular? filepath)
-                                   (string-suffix? ".md" file-str)
-                                   (not (string-contains? file-str "teste")))
-                          (let* ((slug (string-replace-ext file-str ".md" ""))
-                                 (path (string-append "/" cat-path "/" file-str)))
+                                   (string-suffix? ".md" sub-file-str)
+                                   (not (string-contains? sub-file-str "teste")))
+                          (let* ((slug (string-replace-ext sub-file-str ".md" ""))
+                                 (path (string-append "/" item-str "/" sub-file-str)))
                             (set! entries
                               (cons `((path . ,path)
-                                      (section . ,cat-str)
+                                      (section . ,item-str)
                                       (slug . ,slug))
                                     entries))
-                            (printf "Registo adicionado ao manifesto: [secção: ~a] [slug: ~a]\n" cat-str slug))))))
-                    files)))))
-          cats)))
+                            (printf "Registo adicionado ao manifesto: [secção: ~a] [slug: ~a]\n" item-str slug))))))
+                    sub-files)))))
+          root-items)))
 
     ;; Escrever o ficheiro manifest.json formatado com rigor JSON
     (call-with-output-file "manifest.json"
