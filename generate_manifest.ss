@@ -1,8 +1,9 @@
 ;; Script Chez Scheme Definitivo para Geração Automática do manifest.json
+;; Scriptorium Digital — paulolopes.org
 (import (chezscheme))
 
 (define (generate-manifest)
-  (printf "A gerar o manifest.json soberano via Chez Scheme...~n")
+  (printf "A iniciar a geração soberana do manifest.json via Chez Scheme...\n")
   (let ((md-dir "md")
         (entries '()))
     (when (file-directory? md-dir)
@@ -27,11 +28,11 @@
                                       (section . ,cat-str)
                                       (slug . ,slug))
                                     entries))
-                            (printf "Artigo detetado para manifesto: [~a] ~a~n" cat-str slug))))))
+                            (printf "Registo adicionado ao manifesto: [secção: ~a] [slug: ~a]\n" cat-str slug))))))
                     files)))))
           cats)))
 
-    ;; Escrever o manifest.json formatado
+    ;; Escrever o ficheiro manifest.json formatado com rigor JSON
     (call-with-output-file "manifest.json"
       (lambda (p)
         (fprintf p "{\n  \"artigos\": [\n")
@@ -46,7 +47,7 @@
             (loop (cdr lst) #f)))
         (fprintf p "\n  ]\n}\n"))
       'replace)
-    (printf "manifest.json gerado com sucesso!~n")))
+    (printf "manifest.json gerado com sucesso absoluto no ecossistema!\n")))
 
 (define (string-suffix? suffix str)
   (let ((slen (string-length suffix))
