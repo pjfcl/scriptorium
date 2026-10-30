@@ -1,9 +1,8 @@
-# scriptorium
-Investigação de Humanidades: linguagem e teoria crítica. 
-
------
 
 # Scriptorium Digital — paulolopes.org
+
+Investigação de Humanidades: linguagem e teoria crítica. 
+
 
 > *"Cozinhar é uma forma de pensar a matéria. Escrever é uma forma de cozinhar a ideia."*
 
