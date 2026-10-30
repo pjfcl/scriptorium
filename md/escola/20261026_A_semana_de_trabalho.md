@@ -1,12 +1,11 @@
----
----
+
 ---
 Title: "A semana de trabalho "
 Date: "2026-10-26"
 Category: "Estudos Culturais"
 Summary: "Crítica cultural à semana de trabalho."
 
------
+---
 
 ## crítica cultural
 ### 1. Objeto escolhido
