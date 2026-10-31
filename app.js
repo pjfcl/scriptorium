@@ -10,7 +10,7 @@ function parseMarkdown(text) {
     if (match) {
         try {
             const rawMeta = jsyaml.load(match[1]) || {};
-            // Normalizar todas as chaves para minúsculas (suporta Title, Date, Category, etc.)
+            // Normalizar chaves para minúsculas (suporta Title/Date/Category/Summary com maiúsculas ou minúsculas)
             const meta = {};
             for (const key of Object.keys(rawMeta)) {
                 meta[key.toLowerCase()] = rawMeta[key];
@@ -72,8 +72,12 @@ async function carregarTodosArtigos() {
         console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
-    // Ordenar por data decrescente
-    artigos.sort((a, b) => new Date(b.meta.date || 0) - new Date(a.meta.date || 0));
+    // Ordenar por data decrescente (com suporte a meta.date normalizado)
+    artigos.sort((a, b) => {
+        const dataA = new Date(a.meta.date || a.meta.published || 0);
+        const dataB = new Date(b.meta.date || b.meta.published || 0);
+        return dataB - dataA;
+    });
     return artigos;
 }
 
@@ -108,11 +112,12 @@ async function renderizarCapa(artigos) {
     ultimosArtigos.forEach(artigo => {
         const linkUrl = `index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
+        const dataArtigo = artigo.meta.date || artigo.meta.published || '';
         
         htmlOutput += `
             <a href="${linkUrl}" class="entry-card-link">
                 <div class="entry-card">
-                    <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
+                    <span class="entry-meta">${catLabel} • ${dataArtigo}</span>
                     <h3>${artigo.meta.title || 'Sem título'}</h3>
                     <p>${artigo.meta.summary || ''}</p>
                 </div>
@@ -224,12 +229,13 @@ async function router() {
 
         const artigo = artigos.find(a => a.slug === artigoParam);
         if (artigo) {
+            const dataArtigo = artigo.meta.date || artigo.meta.published || '';
             viewContent.innerHTML = `
                 <article>
                     <div class="breadcrumb" style="margin-bottom: 20px;">
                         <a href="index.html">Início</a> / <span>${artigo.section}</span>
                     </div>
-                    <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${artigo.meta.date || ''}</span>
+                    <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${dataArtigo}</span>
                     <h2 class="font-sans" style="font-size: 1.8rem; font-weight: 600; color: var(--text-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
                         ${artigo.meta.title || 'Sem título'}
                     </h2>
@@ -270,10 +276,11 @@ async function router() {
             filtrados.forEach(artigo => {
                 const linkUrl = `index.html?artigo=${artigo.slug}`;
                 const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
+                const dataArtigo = artigo.meta.date || artigo.meta.published || '';
                 htmlOutput += `
                     <a href="${linkUrl}" class="entry-card-link">
                         <div class="entry-card">
-                            <span class="entry-meta">${catLabel} • ${artigo.meta.date || ''}</span>
+                            <span class="entry-meta">${catLabel} • ${dataArtigo}</span>
                             <h3>${artigo.meta.title || 'Sem título'}</h3>
                             <p>${artigo.meta.summary || ''}</p>
                         </div>
