@@ -4,14 +4,8 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
-/**
- * Parser robusto de Markdown: extrai o Frontmatter YAML e limpa o conteúdo para publicação
- */
 function parseMarkdown(text) {
-    // Remove BOM do UTF-8 se existir
     const cleanText = text.replace(/^\uFEFF/, '');
-    
-    // Regex tolerante para isolar o frontmatter e o conteúdo real
     const regex = /^\s*---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/;
     const match = cleanText.match(regex);
     
@@ -29,7 +23,6 @@ function parseMarkdown(text) {
             if (rawMeta.Category) meta.category = rawMeta.Category;
             if (rawMeta.Summary) meta.summary = rawMeta.Summary;
 
-            // Limpeza rigorosa: garante que nenhum vestígio de frontmatter fica no conteúdo
             let content = match[2].trim();
             if (content.startsWith('---')) {
                 const secondDash = content.indexOf('---', 3);
@@ -50,9 +43,6 @@ function parseMarkdown(text) {
     return { meta: {}, content: cleanText.trim() };
 }
 
-/**
- * Resolve o URL do fetch dinamicamente (suporta Hostinger e subdiretórios)
- */
 function resolverUrl(path) {
     if (!path) return '';
     if (path.startsWith('http')) return path;
@@ -62,9 +52,6 @@ function resolverUrl(path) {
     return baseDir + clean;
 }
 
-/**
- * Carrega todos os artigos listados no manifest.json
- */
 async function carregarTodosArtigos() {
     let artigos = [];
 
@@ -112,7 +99,7 @@ async function carregarTodosArtigos() {
         console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
-    // Ordenação rigorosa por data decrescente
+    // Ordenação global por data decrescente
     artigos.sort((a, b) => {
         const d1 = a.meta.date ? new Date(a.meta.date) : new Date(0);
         const d2 = b.meta.date ? new Date(b.meta.date) : new Date(0);
@@ -122,9 +109,6 @@ async function carregarTodosArtigos() {
     return artigos;
 }
 
-/**
- * Renderiza os cartões mais recentes de cada ramo na capa
- */
 async function renderizarCapa(artigos) {
     const container = document.getElementById('entradas-recentes');
     if (!container) return;
@@ -134,27 +118,43 @@ async function renderizarCapa(artigos) {
         return;
     }
 
+    // Seleção estrita e exclusiva por ramo para evitar duplicações na capa
     const sementes = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'semente' || (a.meta.category || '').toLowerCase() === 'semente');
-    const colheitas = artigos.filter(a => a.section === 'corpus' && (a.meta.type || '').toLowerCase() !== 'semente' && (a.meta.type || '').toLowerCase() !== 'tintura');
-    const tinturas = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'tintura');
+    const colheitas = artigos.filter(a => a.section === 'corpus' && (a.meta.type || '').toLowerCase() !== 'semente' && (a.meta.type || '').toLowerCase() !== 'tintura' && (a.meta.category || '').toLowerCase() !== 'colheita');
+    const colheitaReal = artigos.filter(a => (a.meta.category || '').toLowerCase() === 'colheita' || (a.meta.type || '').toLowerCase() === 'ensaio');
+    const colheitaFinal = colheitaReal.length > 0 ? colheitaReal : colheitas;
+
+    const tinturas = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'narrativa');
     const escola = artigos.filter(a => a.section === 'escola');
     const oficina = artigos.filter(a => a.section === 'oficina');
     const sobre = artigos.filter(a => a.section === 'sobre');
 
-    const ultimosArtigos = [
-        sementes[0],
-        colheitas[0],
-        tinturas[0],
-        escola[0],
-        oficina[0],
-        sobre[0]
-    ].filter(Boolean);
+    // Recolher o mais recente de cada categoria sem repetições
+    const escolhidos = [];
+    const idsUsados = new Set();
+
+    const adicionarUnico = (lista) => {
+        for (const art of lista) {
+            if (art && !idsUsados.has(art.slug)) {
+                escolhidos.push(art);
+                idsUsados.add(art.slug);
+                break;
+            }
+        }
+    };
+
+    adicionarUnico(sementes);
+    adicionarUnico(colheitaFinal);
+    adicionarUnico(tinturas);
+    adicionarUnico(escola);
+    adicionarUnico(oficina);
+    adicionarUnico(sobre);
 
     let htmlOutput = '';
 
-    ultimosArtigos.forEach(artigo => {
+    escolhidos.forEach(artigo => {
         const linkUrl = `index.html?artigo=${artigo.slug}`;
-        const catLabel = (artigo.meta.category || artigo.meta.Category || artigo.section).toUpperCase();
+        const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
         const dataArtigo = artigo.meta.date || artigo.meta.Date || '';
         
         htmlOutput += `
@@ -171,9 +171,6 @@ async function renderizarCapa(artigos) {
     container.innerHTML = htmlOutput;
 }
 
-/**
- * Motor de Pesquisa baseado no search-index.json
- */
 async function executarPesquisa(termo) {
     const viewHome = document.getElementById('view-home');
     const viewContent = document.getElementById('view-content');
@@ -248,9 +245,6 @@ async function executarPesquisa(termo) {
     }
 }
 
-/**
- * Router SPA principal
- */
 async function router() {
     const urlParams = new URLSearchParams(window.location.search);
     const seccaoParam = urlParams.get('seccao');
