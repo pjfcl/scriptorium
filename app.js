@@ -116,7 +116,7 @@ async function renderizarCapa(artigos) {
         escola[0],
         oficina[0],
         sobre[0]
-    ].filter(Boolean); // Remove undefined caso alguma secção esteja vazia
+    ].filter(Boolean);
 
     let htmlOutput = '';
 
