@@ -5,12 +5,12 @@
    ========================================================================== */
 
 function parseMarkdown(text) {
-    const regex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
+    const regex = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/;
     const match = text.match(regex);
     if (match) {
         try {
             const rawMeta = jsyaml.load(match[1]) || {};
-            // Normalizar chaves para minúsculas para garantir compatibilidade com Title/Date/Category
+            // Normalizar todas as chaves para minúsculas (suporta Title, Date, Category, etc.)
             const meta = {};
             for (const key of Object.keys(rawMeta)) {
                 meta[key.toLowerCase()] = rawMeta[key];
