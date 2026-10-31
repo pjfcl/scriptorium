@@ -5,31 +5,35 @@
    ========================================================================== */
 
 function parseMarkdown(text) {
-    // Regex estrita para separar o frontmatter do conteúdo real
-    const regex = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/;
+    // Regex robusta para capturar o frontmatter independentemente de espaços iniciais
+    const regex = /^\s*---\s*
+?
+([\s\S]*?)
+?
+---\s*
+?
+([\s\S]*)$/;
     const match = text.match(regex);
     if (match) {
         try {
             const rawMeta = jsyaml.load(match[1]) || {};
             const meta = {};
-            
             for (const key of Object.keys(rawMeta)) {
                 const lowerKey = key.toLowerCase();
                 meta[lowerKey] = rawMeta[key];
                 meta[key] = rawMeta[key];
             }
-            
             if (rawMeta.Title) meta.title = rawMeta.Title;
             if (rawMeta.Date) meta.date = rawMeta.Date;
             if (rawMeta.Category) meta.category = rawMeta.Category;
             if (rawMeta.Summary) meta.summary = rawMeta.Summary;
 
-            // Garantir que limpamos qualquer vestígio de frontmatter no início do conteúdo
+            // Garantir que o conteúdo limpo não traz resíduos de frontmatter
             let cleanContent = match[2].trim();
             if (cleanContent.startsWith('---')) {
-                const secondDash = cleanContent.indexOf('---', 3);
-                if (secondDash !== -1) {
-                    cleanContent = cleanContent.substring(secondDash + 3).trim();
+                const idx = cleanContent.indexOf('---', 3);
+                if (idx !== -1) {
+                    cleanContent = cleanContent.substring(idx + 3).trim();
                 }
             }
 
@@ -76,14 +80,8 @@ async function carregarTodosArtigos() {
                     const tituloRaw = parsed.meta.title || parsed.meta.Title || item.slug.replace(/^[0-9]+_/, '').replace(/[-_]/g, ' ');
                     const tituloFormatado = String(tituloRaw).charAt(0).toUpperCase() + String(tituloRaw).slice(1);
                     
-                    const dataRaw = parsed.meta.date || parsed.meta.Date || '';
-                    
-                    // Gerar sumário limpo ignorando cabeçalhos e metadados
-                    let sumarioRaw = parsed.meta.summary || parsed.meta.Summary;
-                    if (!sumarioRaw) {
-                        const textoPuro = parsed.content.replace(/^#+\s+.*/gm, '').trim();
-                        sumarioRaw = textoPuro.substring(0, 140).trim() + '...';
-                    }
+                    const dataRaw = parsed.meta.date || parsed.meta.Date || '2026-10-29';
+                    const sumarioRaw = parsed.meta.summary || parsed.meta.Summary || parsed.content.replace(/^#+\s+.*/gm, '').trim().substring(0, 140) + '...';
 
                     artigos.push({
                         path: item.path,
@@ -111,7 +109,6 @@ async function carregarTodosArtigos() {
         const d2 = b.meta.date || b.meta.Date || b.meta.published || 0;
         return new Date(d2) - new Date(d1);
     });
-    
     return artigos;
 }
 
@@ -327,13 +324,13 @@ async function router() {
             </div>
         `;
 
-        viewContent.innerHTML = htmlOutput;
-        return;
-    }
+    viewContent.innerHTML = htmlOutput;
+    return;
+}
 
-    viewHome.style.display = 'block';
-    viewContent.style.display = 'none';
-    await renderizarCapa(artigos);
+viewHome.style.display = 'block';
+viewContent.style.display = 'none';
+await renderizarCapa(artigos);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
