@@ -5,8 +5,13 @@
    ========================================================================== */
 
 function parseMarkdown(text) {
-    const regex = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/;
-    const match = text.match(regex);
+    // Remover BOM do UTF-8 se existir no início do ficheiro
+    const cleanText = text.replace(/^\uFEFF/, '');
+    
+    // Regex flexível para aceitar espaços ou quebras iniciais antes do frontmatter
+    const regex = /^\s*---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/;
+    const match = cleanText.match(regex);
+    
     if (match) {
         try {
             const rawMeta = jsyaml.load(match[1]) || {};
@@ -32,7 +37,9 @@ function parseMarkdown(text) {
             console.error("[Scriptorium] Erro a processar YAML:", e);
         }
     }
-    return { meta: {}, content: text.trim() };
+    
+    // Fallback absoluto caso o ficheiro não tenha frontmatter delimitado
+    return { meta: {}, content: cleanText.trim() };
 }
 
 /**
@@ -67,11 +74,23 @@ async function carregarTodosArtigos() {
                     const rawText = await res.text();
                     const parsed = parseMarkdown(rawText);
 
+                    // Extrair título e data com fallbacks inteligentes baseados no slug se faltarem no frontmatter
+                    const tituloRaw = parsed.meta.title || item.slug.replace(/^[0-9]+_/, '').replace(/[-_]/g, ' ');
+                    const tituloFormatado = String(tituloRaw).charAt(0).toUpperCase() + String(tituloRaw).slice(1);
+                    
+                    const dataRaw = parsed.meta.date || parsed.meta.published || '';
+                    const sumarioRaw = parsed.meta.summary || parsed.content.replace(/^#+\s+.*/gm, '').trim().substring(0, 140) + '...';
+
                     artigos.push({
                         path: item.path,
                         slug: item.slug,
                         section: item.section.toLowerCase(),
-                        meta: parsed.meta,
+                        meta: {
+                            ...parsed.meta,
+                            title: tituloFormatado,
+                            date: dataRaw,
+                            summary: sumarioRaw
+                        },
                         content: parsed.content
                     });
                 }
@@ -83,12 +102,13 @@ async function carregarTodosArtigos() {
         console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
-    // Ordenar por data decrescente (com suporte a meta.date normalizado)
+    // Ordenar por data decrescente com suporte rigoroso a datas ISO
     artigos.sort((a, b) => {
-        const dataA = new Date(a.meta.date || a.meta.published || 0);
-        const dataB = new Date(b.meta.date || b.meta.published || 0);
-        return dataB - dataA;
+        const d1 = a.meta.date ? new Date(a.meta.date) : new Date(0);
+        const d2 = b.meta.date ? new Date(b.meta.date) : new Date(0);
+        return d2 - d1;
     });
+    
     return artigos;
 }
 
@@ -123,13 +143,13 @@ async function renderizarCapa(artigos) {
     ultimosArtigos.forEach(artigo => {
         const linkUrl = `index.html?artigo=${artigo.slug}`;
         const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
-        const dataArtigo = artigo.meta.date || artigo.meta.published || '';
+        const dataArtigo = artigo.meta.date || '';
         
         htmlOutput += `
             <a href="${linkUrl}" class="entry-card-link">
                 <div class="entry-card">
                     <span class="entry-meta">${catLabel} • ${dataArtigo}</span>
-                    <h3>${artigo.meta.title || 'Sem título'}</h3>
+                    <h3>${artigo.meta.title}</h3>
                     <p>${artigo.meta.summary || ''}</p>
                 </div>
             </a>
@@ -240,7 +260,7 @@ async function router() {
 
         const artigo = artigos.find(a => a.slug === artigoParam);
         if (artigo) {
-            const dataArtigo = artigo.meta.date || artigo.meta.published || '';
+            const dataArtigo = artigo.meta.date || '';
             viewContent.innerHTML = `
                 <article>
                     <div class="breadcrumb" style="margin-bottom: 20px;">
@@ -248,7 +268,7 @@ async function router() {
                     </div>
                     <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${dataArtigo}</span>
                     <h2 class="font-sans" style="font-size: 1.8rem; font-weight: 600; color: var(--text-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                        ${artigo.meta.title || 'Sem título'}
+                        ${artigo.meta.title}
                     </h2>
                     <div class="markdown-body" style="margin-top: 25px; font-size: 1.05rem;">
                         ${marked.parse(artigo.content)}
@@ -287,12 +307,12 @@ async function router() {
             filtrados.forEach(artigo => {
                 const linkUrl = `index.html?artigo=${artigo.slug}`;
                 const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
-                const dataArtigo = artigo.meta.date || artigo.meta.published || '';
+                const dataArtigo = artigo.meta.date || '';
                 htmlOutput += `
                     <a href="${linkUrl}" class="entry-card-link">
                         <div class="entry-card">
                             <span class="entry-meta">${catLabel} • ${dataArtigo}</span>
-                            <h3>${artigo.meta.title || 'Sem título'}</h3>
+                            <h3>${artigo.meta.title}</h3>
                             <p>${artigo.meta.summary || ''}</p>
                         </div>
                     </a>
