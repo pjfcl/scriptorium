@@ -48,6 +48,12 @@
     "content": " --- Title: 'A semana de trabalho ' Date: '2026-10-26' Category: 'Estudos Culturais' Summary: 'Crítica cultural à semana de trabalho.'  ---  ## crítica cultural ### 1. Objeto escolhido O objeto cultural selecionado é a semana de trabalho, entendida como a norma institucional de distribuição do tempo que os indivíduos dedicam ao seu labor profissional. Essa norma estabelece a quantidade e a forma c"
   },
   {
+    "title": "Minha relação informática - apresentação e intensões",
+    "category": "oficina",
+    "url": "/oficina/2013-11-09_Minha relação informática - apresentação e intensões.html",
+    "content": "  # Minha relação informática - apresentação e intensões  Sou um utilizador do sistema operativo GNU/Linux:  Comecei por utilizar Linux, na versão (descontinuada) da COREL, em 1999, pelo que rapidamente passei a usar a distribuição [Debian](http://www.debian.org/) , à qual me mantive fiel por mais de 10 anos. Neste processo contactei e comecei a utilizar, quase exclusivamente, o software desenvolv"
+  },
+  {
     "title": "Critical Code Studies: O Código como Texto",
     "category": "oficina",
     "url": "/oficina/20261005_critical-code-studies.html",
@@ -58,6 +64,12 @@
     "category": "oficina",
     "url": "/oficina/20071130_DEBIAN - LINUX.html",
     "content": "  # DEBIAN - LINUX  A comunidade que forma o [Projeto Debian](http://www.fr.debian.org/) tem por objectivo criar um [S.O. livre](http://www.fr.debian.org/intro/free).  Este sistema operacional chama-se [Debian GNU/Linux](http://www.fr.debian.org/intro/about), ou simplesmente [Debian](http://www.fr.debian.org/releases/stable/).  As ferramentas que formam o S.O. surgem do P[rojeto GNU](http://www.gn"
+  },
+  {
+    "title": "Configuração de IP para redes privadas",
+    "category": "oficina",
+    "url": "/oficina/20150119_Configuração de IP para redes privadas.html",
+    "content": "  # Configuração de IP para redes privadas  ## RESUMO DOS ENDEREÇOS:  | CLASSES | de ... | a ... | Mascaras de rede por defeito | | --- | --- | --- | --- | | ## A | 10.0.0.0 | 10.255.255.255 | 255.0.0.0 (R.H.H.H) | | ## B | 172.16.0.0 | 172.31.255.255 | 255.255.0.0 (R.R.H.H) | | ## C | 192.168.0.0 | 192.168.255.255 | 255.255.255.0 (R.R.R.H) |  **Legenda:**   R - Rede   H - Host  ## MÁSCARAS DE RED"
   },
   {
     "title": "Oficina",

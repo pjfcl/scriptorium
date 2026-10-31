@@ -31,6 +31,11 @@
       "slug": "20261026_A_semana_de_trabalho"
     },
     {
+      "path": "/md/oficina/2013-11-09_Minha relação informática - apresentação e intensões.md",
+      "section": "oficina",
+      "slug": "2013-11-09_Minha relação informática - apresentação e intensões"
+    },
+    {
       "path": "/md/oficina/20261005_critical-code-studies.md",
       "section": "oficina",
       "slug": "20261005_critical-code-studies"
@@ -39,6 +44,11 @@
       "path": "/md/oficina/20071130_DEBIAN - LINUX.md",
       "section": "oficina",
       "slug": "20071130_DEBIAN - LINUX"
+    },
+    {
+      "path": "/md/oficina/20150119_Configuração de IP para redes privadas.md",
+      "section": "oficina",
+      "slug": "20150119_Configuração de IP para redes privadas"
     },
     {
       "path": "/md/oficina/20260920_Oficina.md",
