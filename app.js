@@ -10,11 +10,21 @@ function parseMarkdown(text) {
     if (match) {
         try {
             const rawMeta = jsyaml.load(match[1]) || {};
-            // Normalizar chaves para minúsculas (suporta Title/Date/Category/Summary com maiúsculas ou minúsculas)
             const meta = {};
+            
+            // Mapeia todas as chaves de forma totalmente insensível a maiúsculas/minúsculas
             for (const key of Object.keys(rawMeta)) {
-                meta[key.toLowerCase()] = rawMeta[key];
+                const lowerKey = key.toLowerCase();
+                meta[lowerKey] = rawMeta[key];
+                meta[key] = rawMeta[key];
             }
+            
+            // Mapeamento explícito para garantir compatibilidade total com Title/Date/Category/Summary em maiúsculas
+            if (rawMeta.Title) meta.title = rawMeta.Title;
+            if (rawMeta.Date) meta.date = rawMeta.Date;
+            if (rawMeta.Category) meta.category = rawMeta.Category;
+            if (rawMeta.Summary) meta.summary = rawMeta.Summary;
+
             return {
                 meta: meta,
                 content: match[2]
@@ -26,9 +36,6 @@ function parseMarkdown(text) {
     return { meta: {}, content: text };
 }
 
-/**
- * Resolve o URL do fetch de forma infalível no GitHub Pages
- */
 function resolverUrl(path) {
     if (!path) return '';
     if (path.startsWith('http')) return path;
@@ -56,11 +63,23 @@ async function carregarTodosArtigos() {
                     const rawText = await res.text();
                     const parsed = parseMarkdown(rawText);
 
+                    // Fallback para título e sumário
+                    const tituloRaw = parsed.meta.title || parsed.meta.Title || item.slug.replace(/^[0-9]+_/, '').replace(/[-_]/g, ' ');
+                    const tituloFormatado = String(tituloRaw).charAt(0).toUpperCase() + String(tituloRaw).slice(1);
+                    
+                    const dataRaw = parsed.meta.date || parsed.meta.Date || '';
+                    const sumarioRaw = parsed.meta.summary || parsed.meta.Summary || parsed.content.substring(0, 140).trim() + '...';
+
                     artigos.push({
                         path: item.path,
                         slug: item.slug,
                         section: item.section,
-                        meta: parsed.meta,
+                        meta: {
+                            ...parsed.meta,
+                            title: tituloFormatado,
+                            date: dataRaw,
+                            summary: sumarioRaw
+                        },
                         content: parsed.content
                     });
                 }
@@ -72,12 +91,13 @@ async function carregarTodosArtigos() {
         console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
-    // Ordenar por data decrescente (com suporte a meta.date normalizado)
+    // Ordenar por data decrescente (com suporte rigoroso a date ou Date)
     artigos.sort((a, b) => {
-        const dataA = new Date(a.meta.date || a.meta.published || 0);
-        const dataB = new Date(b.meta.date || b.meta.published || 0);
-        return dataB - dataA;
+        const d1 = a.meta.date || a.meta.Date || a.meta.published || 0;
+        const d2 = b.meta.date || b.meta.Date || b.meta.published || 0;
+        return new Date(d2) - new Date(d1);
     });
+    
     return artigos;
 }
 
@@ -90,7 +110,6 @@ async function renderizarCapa(artigos) {
         return;
     }
 
-    // Filtrar estritamente o ÚLTIMO artigo de cada categoria/secção
     const sementes = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'semente' || (a.meta.category || '').toLowerCase() === 'semente');
     const colheitas = artigos.filter(a => a.section === 'corpus' && (a.meta.type || '').toLowerCase() !== 'semente' && (a.meta.type || '').toLowerCase() !== 'tintura');
     const tinturas = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'tintura');
@@ -105,20 +124,20 @@ async function renderizarCapa(artigos) {
         escola[0],
         oficina[0],
         sobre[0]
-    ].filter(Boolean); // Remove undefined caso alguma secção esteja vazia
+    ].filter(Boolean);
 
     let htmlOutput = '';
 
     ultimosArtigos.forEach(artigo => {
         const linkUrl = `index.html?artigo=${artigo.slug}`;
-        const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
-        const dataArtigo = artigo.meta.date || artigo.meta.published || '';
+        const catLabel = (artigo.meta.category || artigo.meta.Category || artigo.section).toUpperCase();
+        const dataArtigo = artigo.meta.date || artigo.meta.Date || '';
         
         htmlOutput += `
             <a href="${linkUrl}" class="entry-card-link">
                 <div class="entry-card">
                     <span class="entry-meta">${catLabel} • ${dataArtigo}</span>
-                    <h3>${artigo.meta.title || 'Sem título'}</h3>
+                    <h3>${artigo.meta.title}</h3>
                     <p>${artigo.meta.summary || ''}</p>
                 </div>
             </a>
@@ -128,9 +147,6 @@ async function renderizarCapa(artigos) {
     container.innerHTML = htmlOutput;
 }
 
-/**
- * Motor de Pesquisa baseado no search-index.json gerado por Chez Scheme
- */
 async function executarPesquisa(termo) {
     const viewHome = document.getElementById('view-home');
     const viewContent = document.getElementById('view-content');
@@ -229,15 +245,15 @@ async function router() {
 
         const artigo = artigos.find(a => a.slug === artigoParam);
         if (artigo) {
-            const dataArtigo = artigo.meta.date || artigo.meta.published || '';
+            const dataArtigo = artigo.meta.date || artigo.meta.Date || '';
             viewContent.innerHTML = `
                 <article>
                     <div class="breadcrumb" style="margin-bottom: 20px;">
                         <a href="index.html">Início</a> / <span>${artigo.section}</span>
                     </div>
-                    <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${dataArtigo}</span>
+                    <span class="entry-meta font-mono">${(artigo.meta.category || artigo.meta.Category || artigo.section).toUpperCase()} • ${dataArtigo}</span>
                     <h2 class="font-sans" style="font-size: 1.8rem; font-weight: 600; color: var(--text-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                        ${artigo.meta.title || 'Sem título'}
+                        ${artigo.meta.title}
                     </h2>
                     <div class="markdown-body" style="margin-top: 25px; font-size: 1.05rem;">
                         ${marked.parse(artigo.content)}
@@ -275,13 +291,13 @@ async function router() {
         if (filtrados.length > 0) {
             filtrados.forEach(artigo => {
                 const linkUrl = `index.html?artigo=${artigo.slug}`;
-                const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
-                const dataArtigo = artigo.meta.date || artigo.meta.published || '';
+                const catLabel = (artigo.meta.category || artigo.meta.Category || artigo.section).toUpperCase();
+                const dataArtigo = artigo.meta.date || artigo.meta.Date || '';
                 htmlOutput += `
                     <a href="${linkUrl}" class="entry-card-link">
                         <div class="entry-card">
                             <span class="entry-meta">${catLabel} • ${dataArtigo}</span>
-                            <h3>${artigo.meta.title || 'Sem título'}</h3>
+                            <h3>${artigo.meta.title}</h3>
                             <p>${artigo.meta.summary || ''}</p>
                         </div>
                     </a>
