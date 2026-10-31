@@ -4,11 +4,14 @@
    Autor: Paulo Furtado Lopes (mail@paulolopes.org)
    ========================================================================== */
 
+/**
+ * Parser robusto de Markdown: extrai o Frontmatter YAML e limpa o conteúdo para publicação
+ */
 function parseMarkdown(text) {
-    // Remover BOM do UTF-8 se existir no início do ficheiro
+    // Remove BOM do UTF-8 se existir
     const cleanText = text.replace(/^\uFEFF/, '');
     
-    // Regex flexível para aceitar espaços ou quebras iniciais antes do frontmatter
+    // Regex tolerante para isolar o frontmatter e o conteúdo real
     const regex = /^\s*---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/;
     const match = cleanText.match(regex);
     
@@ -18,32 +21,37 @@ function parseMarkdown(text) {
             const meta = {};
             for (const key of Object.keys(rawMeta)) {
                 meta[key.toLowerCase()] = rawMeta[key];
+                meta[key] = rawMeta[key];
             }
             
-            // Limpeza rigorosa do conteúdo para remover qualquer vestígio de frontmatter remanescente
-            let cleanContent = match[2].trim();
-            if (cleanContent.startsWith('---')) {
-                const secondDash = cleanContent.indexOf('---', 3);
+            if (rawMeta.Title) meta.title = rawMeta.Title;
+            if (rawMeta.Date) meta.date = rawMeta.Date;
+            if (rawMeta.Category) meta.category = rawMeta.Category;
+            if (rawMeta.Summary) meta.summary = rawMeta.Summary;
+
+            // Limpeza rigorosa: garante que nenhum vestígio de frontmatter fica no conteúdo
+            let content = match[2].trim();
+            if (content.startsWith('---')) {
+                const secondDash = content.indexOf('---', 3);
                 if (secondDash !== -1) {
-                    cleanContent = cleanContent.substring(secondDash + 3).trim();
+                    content = content.substring(secondDash + 3).trim();
                 }
             }
 
             return {
                 meta: meta,
-                content: cleanContent
+                content: content
             };
         } catch (e) {
             console.error("[Scriptorium] Erro a processar YAML:", e);
         }
     }
     
-    // Fallback absoluto caso o ficheiro não tenha frontmatter delimitado
     return { meta: {}, content: cleanText.trim() };
 }
 
 /**
- * Resolve o URL do fetch de forma infalível em subdiretórios e Hostinger
+ * Resolve o URL do fetch dinamicamente (suporta Hostinger e subdiretórios)
  */
 function resolverUrl(path) {
     if (!path) return '';
@@ -54,6 +62,9 @@ function resolverUrl(path) {
     return baseDir + clean;
 }
 
+/**
+ * Carrega todos os artigos listados no manifest.json
+ */
 async function carregarTodosArtigos() {
     let artigos = [];
 
@@ -74,12 +85,11 @@ async function carregarTodosArtigos() {
                     const rawText = await res.text();
                     const parsed = parseMarkdown(rawText);
 
-                    // Extrair título e data com fallbacks inteligentes baseados no slug se faltarem no frontmatter
-                    const tituloRaw = parsed.meta.title || item.slug.replace(/^[0-9]+_/, '').replace(/[-_]/g, ' ');
+                    const tituloRaw = parsed.meta.title || parsed.meta.Title || item.slug.replace(/^[0-9]+_/, '').replace(/[-_]/g, ' ');
                     const tituloFormatado = String(tituloRaw).charAt(0).toUpperCase() + String(tituloRaw).slice(1);
                     
-                    const dataRaw = parsed.meta.date || parsed.meta.published || '';
-                    const sumarioRaw = parsed.meta.summary || parsed.content.replace(/^#+\s+.*/gm, '').trim().substring(0, 140) + '...';
+                    const dataRaw = parsed.meta.date || parsed.meta.Date || '';
+                    const sumarioRaw = parsed.meta.summary || parsed.meta.Summary || parsed.content.replace(/^#+\s+.*/gm, '').trim().substring(0, 140) + '...';
 
                     artigos.push({
                         path: item.path,
@@ -102,7 +112,7 @@ async function carregarTodosArtigos() {
         console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
-    // Ordenar por data decrescente com suporte rigoroso a datas ISO
+    // Ordenação rigorosa por data decrescente
     artigos.sort((a, b) => {
         const d1 = a.meta.date ? new Date(a.meta.date) : new Date(0);
         const d2 = b.meta.date ? new Date(b.meta.date) : new Date(0);
@@ -112,6 +122,9 @@ async function carregarTodosArtigos() {
     return artigos;
 }
 
+/**
+ * Renderiza os cartões mais recentes de cada ramo na capa
+ */
 async function renderizarCapa(artigos) {
     const container = document.getElementById('entradas-recentes');
     if (!container) return;
@@ -121,7 +134,6 @@ async function renderizarCapa(artigos) {
         return;
     }
 
-    // Filtrar estritamente o ÚLTIMO artigo de cada categoria/secção
     const sementes = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'semente' || (a.meta.category || '').toLowerCase() === 'semente');
     const colheitas = artigos.filter(a => a.section === 'corpus' && (a.meta.type || '').toLowerCase() !== 'semente' && (a.meta.type || '').toLowerCase() !== 'tintura');
     const tinturas = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'tintura');
@@ -142,8 +154,8 @@ async function renderizarCapa(artigos) {
 
     ultimosArtigos.forEach(artigo => {
         const linkUrl = `index.html?artigo=${artigo.slug}`;
-        const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
-        const dataArtigo = artigo.meta.date || '';
+        const catLabel = (artigo.meta.category || artigo.meta.Category || artigo.section).toUpperCase();
+        const dataArtigo = artigo.meta.date || artigo.meta.Date || '';
         
         htmlOutput += `
             <a href="${linkUrl}" class="entry-card-link">
@@ -160,7 +172,7 @@ async function renderizarCapa(artigos) {
 }
 
 /**
- * Motor de Pesquisa baseado no search-index.json gerado por Chez Scheme
+ * Motor de Pesquisa baseado no search-index.json
  */
 async function executarPesquisa(termo) {
     const viewHome = document.getElementById('view-home');
@@ -236,6 +248,9 @@ async function executarPesquisa(termo) {
     }
 }
 
+/**
+ * Router SPA principal
+ */
 async function router() {
     const urlParams = new URLSearchParams(window.location.search);
     const seccaoParam = urlParams.get('seccao');
@@ -260,13 +275,13 @@ async function router() {
 
         const artigo = artigos.find(a => a.slug === artigoParam);
         if (artigo) {
-            const dataArtigo = artigo.meta.date || '';
+            const dataArtigo = artigo.meta.date || artigo.meta.Date || '';
             viewContent.innerHTML = `
                 <article>
                     <div class="breadcrumb" style="margin-bottom: 20px;">
                         <a href="index.html">Início</a> / <span>${artigo.section}</span>
                     </div>
-                    <span class="entry-meta font-mono">${(artigo.meta.category || artigo.section).toUpperCase()} • ${dataArtigo}</span>
+                    <span class="entry-meta font-mono">${(artigo.meta.category || artigo.meta.Category || artigo.section).toUpperCase()} • ${dataArtigo}</span>
                     <h2 class="font-sans" style="font-size: 1.8rem; font-weight: 600; color: var(--text-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
                         ${artigo.meta.title}
                     </h2>
@@ -306,8 +321,8 @@ async function router() {
         if (filtrados.length > 0) {
             filtrados.forEach(artigo => {
                 const linkUrl = `index.html?artigo=${artigo.slug}`;
-                const catLabel = (artigo.meta.category || artigo.section).toUpperCase();
-                const dataArtigo = artigo.meta.date || '';
+                const catLabel = (artigo.meta.category || artigo.meta.Category || artigo.section).toUpperCase();
+                const dataArtigo = artigo.meta.date || artigo.meta.Date || '';
                 htmlOutput += `
                     <a href="${linkUrl}" class="entry-card-link">
                         <div class="entry-card">
