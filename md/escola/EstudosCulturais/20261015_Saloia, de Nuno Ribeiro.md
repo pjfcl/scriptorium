@@ -1,8 +1,8 @@
 
 ---
 Title: " A Saloia, de Nuno Ribeiro"
-Date: "2026-10-15"
-Category: "Escola/EstudosCulturais"
+Date: "2026-10-30"
+Category: "EstudosCulturais"
 Summary: " Crítica cultural ao videoclip musical 'A Saloia', de Nuno Ribeiro." 
 
 ---
