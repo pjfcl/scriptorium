@@ -9,8 +9,14 @@ function parseMarkdown(text) {
     const match = text.match(regex);
     if (match) {
         try {
+            const rawMeta = jsyaml.load(match[1]) || {};
+            // Normalizar chaves para minúsculas para garantir compatibilidade com Title/Date/Category
+            const meta = {};
+            for (const key of Object.keys(rawMeta)) {
+                meta[key.toLowerCase()] = rawMeta[key];
+            }
             return {
-                meta: jsyaml.load(match[1]) || {},
+                meta: meta,
                 content: match[2]
             };
         } catch (e) {
