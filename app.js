@@ -12,14 +12,13 @@ function parseMarkdown(text) {
             const rawMeta = jsyaml.load(match[1]) || {};
             const meta = {};
             
-            // Mapeia todas as chaves de forma totalmente insensível a maiúsculas/minúsculas
+            // Normalizar chaves para minúsculas e preservar originais
             for (const key of Object.keys(rawMeta)) {
                 const lowerKey = key.toLowerCase();
                 meta[lowerKey] = rawMeta[key];
                 meta[key] = rawMeta[key];
             }
             
-            // Mapeamento explícito para garantir compatibilidade total com Title/Date/Category/Summary em maiúsculas
             if (rawMeta.Title) meta.title = rawMeta.Title;
             if (rawMeta.Date) meta.date = rawMeta.Date;
             if (rawMeta.Category) meta.category = rawMeta.Category;
@@ -36,11 +35,19 @@ function parseMarkdown(text) {
     return { meta: {}, content: text };
 }
 
+/**
+ * Resolve o URL dinamicamente com base no diretório atual (suporta Hostinger e subdiretórios)
+ */
 function resolverUrl(path) {
     if (!path) return '';
     if (path.startsWith('http')) return path;
     const clean = path.startsWith('/') ? path.substring(1) : path;
-    return './' + clean;
+    
+    // Calcula o diretório base atual do SPA para evitar falhas de caminho relativo na Hostinger
+    const pathname = window.location.pathname;
+    const baseDir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+    
+    return baseDir + clean;
 }
 
 async function carregarTodosArtigos() {
@@ -63,7 +70,6 @@ async function carregarTodosArtigos() {
                     const rawText = await res.text();
                     const parsed = parseMarkdown(rawText);
 
-                    // Fallback para título e sumário
                     const tituloRaw = parsed.meta.title || parsed.meta.Title || item.slug.replace(/^[0-9]+_/, '').replace(/[-_]/g, ' ');
                     const tituloFormatado = String(tituloRaw).charAt(0).toUpperCase() + String(tituloRaw).slice(1);
                     
@@ -73,7 +79,7 @@ async function carregarTodosArtigos() {
                     artigos.push({
                         path: item.path,
                         slug: item.slug,
-                        section: item.section,
+                        section: item.section.toLowerCase(),
                         meta: {
                             ...parsed.meta,
                             title: tituloFormatado,
@@ -82,6 +88,8 @@ async function carregarTodosArtigos() {
                         },
                         content: parsed.content
                     });
+                } else {
+                    console.warn(`[Scriptorium] Aviso: Não foi possível carregar ${articleUrl} (HTTP ${res.status})`);
                 }
             } catch (e) {
                 console.error(`[Scriptorium] Erro ao aceder ao artigo ${item.path}:`, e);
@@ -91,7 +99,7 @@ async function carregarTodosArtigos() {
         console.error("[Scriptorium] Erro crítico ao carregar manifesto:", e);
     }
 
-    // Ordenar por data decrescente (com suporte rigoroso a date ou Date)
+    // Ordenar globalmente por data decrescente
     artigos.sort((a, b) => {
         const d1 = a.meta.date || a.meta.Date || a.meta.published || 0;
         const d2 = b.meta.date || b.meta.Date || b.meta.published || 0;
@@ -110,6 +118,7 @@ async function renderizarCapa(artigos) {
         return;
     }
 
+    // Filtrar e separar estritamente por cada ramo da árvore
     const sementes = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'semente' || (a.meta.category || '').toLowerCase() === 'semente');
     const colheitas = artigos.filter(a => a.section === 'corpus' && (a.meta.type || '').toLowerCase() !== 'semente' && (a.meta.type || '').toLowerCase() !== 'tintura');
     const tinturas = artigos.filter(a => (a.meta.type || '').toLowerCase() === 'tintura' || (a.meta.category || '').toLowerCase() === 'tintura');
