@@ -58,5 +58,11 @@
     "category": "oficina",
     "url": "/oficina/20261005_critical-code-studies.html",
     "content": "  # Critical Code Studies: O Código como Texto  O código de computador não é apenas um conjunto de instruções utilitárias destinadas a executar uma tarefa numa máquina; é um artefato cultural densamente carregado de ideologia, estética e intenção humana.   "
+  },
+  {
+    "title": "DEBIAN - LINUX",
+    "category": "oficina",
+    "url": "/oficina/20071130_DEBIAN - LINUX.html",
+    "content": "  # DEBIAN - LINUX  A comunidade que forma o [Projeto Debian](http://www.fr.debian.org/) tem por objectivo criar um [S.O. livre](http://www.fr.debian.org/intro/free).  Este sistema operacional chama-se [Debian GNU/Linux](http://www.fr.debian.org/intro/about), ou simplesmente [Debian](http://www.fr.debian.org/releases/stable/).  As ferramentas que formam o S.O. surgem do P[rojeto GNU](http://www.gn"
   }
 ]
