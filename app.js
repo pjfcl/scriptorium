@@ -5,6 +5,7 @@
    ========================================================================== */
 
 function parseMarkdown(text) {
+    // Regex estrita para separar o frontmatter do conteúdo real
     const regex = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/;
     const match = text.match(regex);
     if (match) {
@@ -23,7 +24,7 @@ function parseMarkdown(text) {
             if (rawMeta.Category) meta.category = rawMeta.Category;
             if (rawMeta.Summary) meta.summary = rawMeta.Summary;
 
-            // Limpar rigorosamente qualquer vestígio de frontmatter remanescente no início do conteúdo
+            // Garantir que limpamos qualquer vestígio de frontmatter no início do conteúdo
             let cleanContent = match[2].trim();
             if (cleanContent.startsWith('---')) {
                 const secondDash = cleanContent.indexOf('---', 3);
@@ -75,12 +76,11 @@ async function carregarTodosArtigos() {
                     const tituloRaw = parsed.meta.title || parsed.meta.Title || item.slug.replace(/^[0-9]+_/, '').replace(/[-_]/g, ' ');
                     const tituloFormatado = String(tituloRaw).charAt(0).toUpperCase() + String(tituloRaw).slice(1);
                     
-                    const dataRaw = parsed.meta.date || parsed.meta.Date || '2026-10-29';
+                    const dataRaw = parsed.meta.date || parsed.meta.Date || '';
                     
-                    // Gerar sumário limpo sem tags ou metadados
+                    // Gerar sumário limpo ignorando cabeçalhos e metadados
                     let sumarioRaw = parsed.meta.summary || parsed.meta.Summary;
                     if (!sumarioRaw) {
-                        // Remover cabeçalhos markdown e linhas indesejadas do início do conteúdo para o sumário automático
                         const textoPuro = parsed.content.replace(/^#+\s+.*/gm, '').trim();
                         sumarioRaw = textoPuro.substring(0, 140).trim() + '...';
                     }
