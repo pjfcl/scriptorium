@@ -11,25 +11,36 @@ function parseMarkdown(text) {
         try {
             const rawMeta = jsyaml.load(match[1]) || {};
             const meta = {};
+            
             for (const key of Object.keys(rawMeta)) {
                 const lowerKey = key.toLowerCase();
                 meta[lowerKey] = rawMeta[key];
                 meta[key] = rawMeta[key];
             }
+            
             if (rawMeta.Title) meta.title = rawMeta.Title;
             if (rawMeta.Date) meta.date = rawMeta.Date;
             if (rawMeta.Category) meta.category = rawMeta.Category;
             if (rawMeta.Summary) meta.summary = rawMeta.Summary;
 
+            // Limpar rigorosamente qualquer vestígio de frontmatter remanescente no início do conteúdo
+            let cleanContent = match[2].trim();
+            if (cleanContent.startsWith('---')) {
+                const secondDash = cleanContent.indexOf('---', 3);
+                if (secondDash !== -1) {
+                    cleanContent = cleanContent.substring(secondDash + 3).trim();
+                }
+            }
+
             return {
                 meta: meta,
-                content: match[2]
+                content: cleanContent
             };
         } catch (e) {
             console.error("[Scriptorium] Erro a processar YAML:", e);
         }
     }
-    return { meta: {}, content: text };
+    return { meta: {}, content: text.trim() };
 }
 
 function resolverUrl(path) {
@@ -65,7 +76,14 @@ async function carregarTodosArtigos() {
                     const tituloFormatado = String(tituloRaw).charAt(0).toUpperCase() + String(tituloRaw).slice(1);
                     
                     const dataRaw = parsed.meta.date || parsed.meta.Date || '2026-10-29';
-                    const sumarioRaw = parsed.meta.summary || parsed.meta.Summary || parsed.content.substring(0, 140).trim() + '...';
+                    
+                    // Gerar sumário limpo sem tags ou metadados
+                    let sumarioRaw = parsed.meta.summary || parsed.meta.Summary;
+                    if (!sumarioRaw) {
+                        // Remover cabeçalhos markdown e linhas indesejadas do início do conteúdo para o sumário automático
+                        const textoPuro = parsed.content.replace(/^#+\s+.*/gm, '').trim();
+                        sumarioRaw = textoPuro.substring(0, 140).trim() + '...';
+                    }
 
                     artigos.push({
                         path: item.path,
